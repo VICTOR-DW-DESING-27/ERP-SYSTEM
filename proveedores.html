@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP System - Proveedores</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <div id="navbar">
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <a href="index.html" class="text-xl font-bold text-gray-800">ERP System</a>
+                        </div>
+                        <div class="hidden md:ml-6 md:flex md:space-x-8">
+                            <a href="index.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Inicio
+                            </a>
+                            <a href="proveedores.html" class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" aria-current="page">
+                                Proveedores
+                            </a>
+                            <a href="compras.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Compras
+                            </a>
+                            <a href="inventario.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Inventario
+                            </a>
+                            <a href="ventas.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Ventas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold">Proveedores</h1>
+            <button onclick="mostrarModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center">
+                <i class="fas fa-plus mr-2"></i> Nuevo Proveedor
+            </button>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="relative flex-grow">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input type="text" id="buscar" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Buscar proveedores...">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-700">Filtrar por:</span>
+                    <select class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                        <option>Todos</option>
+                        <option>Activos</option>
+                        <option>Inactivos</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suppliers Table -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaProveedores" class="bg-white divide-y divide-gray-200">
+                        <!-- Los proveedores se cargarán aquí dinámicamente -->
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                No hay proveedores registrados
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal para Agregar/Editar Proveedor -->
+    <div id="modalProveedor" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg w-full max-w-md mx-4">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 id="modalTitulo" class="text-lg font-semibold">Nuevo Proveedor</h3>
+                <button type="button" onclick="cerrarModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="formProveedor" class="p-6 space-y-4" onsubmit="guardarProveedor(event)">
+                <input type="hidden" id="proveedorId">
+                
+                <div>
+                    <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Empresa *</label>
+                    <input type="text" id="nombre" required
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder="Ej: Distribuidora Comercial S.A.">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="rfc" class="block text-sm font-medium text-gray-700 mb-1">RFC</label>
+                        <input type="text" id="rfc"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Ej: DCO123456ABC">
+                    </div>
+                    <div>
+                        <label for="telefono" class="block text-sm font-medium text-gray-700 mb-1">Teléfono *</label>
+                        <input type="tel" id="telefono" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Ej: 5512345678">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="contacto" class="block text-sm font-medium text-gray-700 mb-1">Persona de Contacto *</label>
+                    <input type="text" id="contacto" required
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder="Nombre completo">
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico *</label>
+                    <input type="email" id="email" required
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder="contacto@empresa.com">
+                </div>
+                
+                <div>
+                    <label for="direccion" class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                    <textarea id="direccion" rows="2"
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder="Calle, Número, Colonia, C.P., Ciudad, Estado"></textarea>
+                </div>
+                
+                <div class="pt-4 flex justify-end space-x-3">
+                    <button type="button" onclick="cerrarModal()" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-save mr-2"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let proveedores = [];
+        
+        // Mostrar modal
+        function mostrarModal() {
+            document.getElementById('modalProveedor').classList.remove('hidden');
+            document.getElementById('modalTitulo').textContent = 'Nuevo Proveedor';
+            document.getElementById('formProveedor').reset();
+            document.getElementById('proveedorId').value = '';
+        }
+        
+        // Cerrar modal
+        function cerrarModal() {
+            document.getElementById('modalProveedor').classList.add('hidden');
+        }
+        
+        // Guardar proveedor
+        function guardarProveedor(event) {
+            event.preventDefault();
+            
+            const proveedor = {
+                id: document.getElementById('proveedorId').value || Date.now().toString(),
+                nombre: document.getElementById('nombre').value,
+                rfc: document.getElementById('rfc').value,
+                telefono: document.getElementById('telefono').value,
+                contacto: document.getElementById('contacto').value,
+                email: document.getElementById('email').value,
+                direccion: document.getElementById('direccion').value,
+                fechaRegistro: new Date().toISOString().split('T')[0]
+            };
+            
+            // Si es edición, actualizar. Si no, agregar nuevo
+            const index = proveedores.findIndex(p => p.id === proveedor.id);
+            if (index !== -1) {
+                proveedores[index] = proveedor;
+            } else {
+                proveedores.push(proveedor);
+            }
+            
+            // Guardar en localStorage inmediatamente
+            localStorage.setItem('proveedores', JSON.stringify(proveedores));
+            console.log('Proveedores guardados en localStorage:', proveedores);
+            
+            // Actualizar tabla
+            actualizarTablaProveedores();
+            
+            // Cerrar modal
+            cerrarModal();
+            
+            // Mostrar notificación
+            alert('Proveedor guardado correctamente');
+        }
+        
+        // Actualizar tabla de proveedores
+        function actualizarTablaProveedores() {
+            const tbody = document.getElementById('tablaProveedores');
+            
+            if (proveedores.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            No hay proveedores registrados
+                        </td>
+                    </tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = proveedores.map(proveedor => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="font-medium text-gray-900">${proveedor.nombre}</div>
+                        <div class="text-sm text-gray-500">${proveedor.rfc || 'Sin RFC'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${proveedor.contacto}</div>
+                        <div class="text-sm text-gray-500">${proveedor.email}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${proveedor.telefono}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${proveedor.email}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="editarProveedor('${proveedor.id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="eliminarProveedor('${proveedor.id}')" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Editar proveedor
+        function editarProveedor(id) {
+            const proveedor = proveedores.find(p => p.id === id);
+            if (!proveedor) return;
+            
+            document.getElementById('modalTitulo').textContent = 'Editar Proveedor';
+            document.getElementById('proveedorId').value = proveedor.id;
+            document.getElementById('nombre').value = proveedor.nombre || '';
+            document.getElementById('rfc').value = proveedor.rfc || '';
+            document.getElementById('telefono').value = proveedor.telefono || '';
+            document.getElementById('contacto').value = proveedor.contacto || '';
+            document.getElementById('email').value = proveedor.email || '';
+            document.getElementById('direccion').value = proveedor.direccion || '';
+            
+            document.getElementById('modalProveedor').classList.remove('hidden');
+        }
+        
+        // Eliminar proveedor
+        function eliminarProveedor(id) {
+            if (confirm('¿Estás seguro de eliminar este proveedor?')) {
+                proveedores = proveedores.filter(p => p.id !== id);
+                // Guardar en localStorage inmediatamente
+                localStorage.setItem('proveedores', JSON.stringify(proveedores));
+                console.log('Proveedor eliminado. Proveedores actuales:', proveedores);
+                actualizarTablaProveedores();
+                alert('Proveedor eliminado correctamente');
+            }
+        }
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar proveedores del localStorage si existen
+            const saved = localStorage.getItem('proveedores');
+            if (saved) {
+                proveedores = JSON.parse(saved);
+                actualizarTablaProveedores();
+            }
+            
+            // Guardar en localStorage al cerrar la pestaña
+            window.addEventListener('beforeunload', function() {
+                localStorage.setItem('proveedores', JSON.stringify(proveedores));
+            });
+        });
+    </script>

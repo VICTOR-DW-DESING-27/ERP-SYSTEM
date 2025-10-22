@@ -1,0 +1,3279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Inventario - ERP System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .inventory-table th {
+            padding: 0.75rem 1.5rem;
+            background-color: #f9fafb;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .inventory-table td {
+            padding: 1rem 1.5rem;
+            white-space: nowrap;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .status-in-stock {
+            padding: 0.125rem 0.5rem;
+            display: inline-flex;
+            font-size: 0.75rem;
+            line-height: 1.25rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .status-low-stock {
+            padding: 0.125rem 0.5rem;
+            display: inline-flex;
+            font-size: 0.75rem;
+            line-height: 1.25rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-out-of-stock {
+            padding: 0.125rem 0.5rem;
+            display: inline-flex;
+            font-size: 0.75rem;
+            line-height: 1.25rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca;
+        }
+        .btn-primary:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width, 0px) var(--tw-ring-offset-color, #fff);
+            --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width, 0px)) var(--tw-ring-color);
+            box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+            --tw-ring-opacity: 1;
+            --tw-ring-color: rgb(99 102 241 / var(--tw-ring-opacity));
+        }
+        .btn-secondary {
+            background-color: white;
+            color: #374151;
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-secondary:hover {
+            background-color: #f9fafb;
+        }
+        .btn-secondary:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width, 0px) var(--tw-ring-offset-color, #fff);
+            --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width, 0px)) var(--tw-ring-color);
+            box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+            --tw-ring-opacity: 1;
+            --tw-ring-color: rgb(99 102 241 / var(--tw-ring-opacity));
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <div id="navbar"></div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Inventory Content -->
+        <main class="p-6">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8" id="inventory-stats">
+            <!-- Total Products -->
+            <div class="bg-gradient-to-br from-blue-50 to-white rounded-xl shadow-sm border border-blue-100 p-5 transition-all duration-300 hover:shadow-md">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-xl bg-blue-100 text-blue-600 mr-4">
+                        <i class="fas fa-box text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-500">Total Productos</p>
+                        <div class="flex items-baseline justify-between">
+                            <h3 class="text-2xl font-bold text-gray-800" id="total-products">0</h3>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                <i class="fas fa-arrow-up mr-1 text-green-500" id="total-trend-icon"></i>
+                                <span id="total-products-trend">0%</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- In Stock -->
+            <div class="bg-gradient-to-br from-green-50 to-white rounded-xl shadow-sm border border-green-100 p-5 transition-all duration-300 hover:shadow-md">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-xl bg-green-100 text-green-600 mr-4">
+                        <i class="fas fa-check-circle text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-500">En Stock</p>
+                        <div class="flex items-baseline justify-between">
+                            <h3 class="text-2xl font-bold text-gray-800" id="in-stock-count">0</h3>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-arrow-up mr-1 text-green-500" id="in-stock-trend-icon"></i>
+                                <span id="in-stock-trend">0%</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Low Stock -->
+            <div class="bg-gradient-to-br from-yellow-50 to-white rounded-xl shadow-sm border border-yellow-100 p-5 transition-all duration-300 hover:shadow-md">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-xl bg-yellow-100 text-yellow-600 mr-4">
+                        <i class="fas fa-exclamation-triangle text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-500">Poco Stock</p>
+                        <div class="flex items-baseline justify-between">
+                            <h3 class="text-2xl font-bold text-gray-800" id="low-stock-count">0</h3>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <i class="fas fa-arrow-up mr-1 text-yellow-500" id="low-stock-trend-icon"></i>
+                                <span id="low-stock-trend">0</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Out of Stock -->
+            <div class="bg-gradient-to-br from-red-50 to-white rounded-xl shadow-sm border border-red-100 p-5 transition-all duration-300 hover:shadow-md">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-xl bg-red-100 text-red-600 mr-4">
+                        <i class="fas fa-times-circle text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-500">Agotado</p>
+                        <div class="flex items-baseline justify-between">
+                            <h3 class="text-2xl font-bold text-gray-800" id="out-of-stock-count">0</h3>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                <i class="fas fa-arrow-up mr-1 text-red-500" id="out-of-stock-trend-icon"></i>
+                                <span id="out-of-stock-trend">0</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Actions -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                    <div class="relative">
+                        <select class="appearance-none bg-white border border-gray-300 text-gray-700 py-2 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            <option>Todas las categorías</option>
+                            <option>Electrónicos</option>
+                            <option>Ropa</option>
+                            <option>Alimentos</option>
+                            <option>Hogar</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <select class="appearance-none bg-white border border-gray-300 text-gray-700 py-2 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            <option>Ordenar por: Más recientes</option>
+                            <option>Ordenar por: Nombre (A-Z)</option>
+                            <option>Ordenar por: Stock (bajo a alto)</option>
+                            <option>Ordenar por: Precio (bajo a alto)</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <i class="fas fa-sort text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex space-x-3">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" id="searchProduct" onkeyup="filterProducts(this.value)" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" placeholder="Buscar por código, nombre o descripción...">
+                    </div>
+                    <button type="button" onclick="showAddProductModal()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i class="fas fa-plus mr-2"></i>
+                        Agregar Producto
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-3 border-b border-gray-200 bg-gray-50">
+                <h2 class="text-sm font-semibold text-gray-700">Lista de Productos</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table id="productsTable" class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Código Interno</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código Producto</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marca</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Precio DC</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Precio ML</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Bs (ML)</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Existencia</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="products-table-body">
+                                <!-- Los productos se cargarán aquí con JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination -->
+                    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            <button onclick="changePage(currentPage - 1)" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" id="prevPageMobile" disabled>
+                                Anterior
+                            </button>
+                            <button onclick="changePage(currentPage + 1)" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" id="nextPageMobile">
+                                Siguiente
+                            </button>
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700" id="paginationInfo">
+                                    Cargando productos...
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                    <button onclick="changePage(currentPage - 1)" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" id="prevPage" disabled>
+                                        <span class="sr-only">Anterior</span>
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <div id="pageNumbers" class="flex">
+                                        <!-- Page numbers will be inserted here by JavaScript -->
+                                    </div>
+                                    <button onclick="changePage(currentPage + 1)" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" id="nextPage">
+                                        <span class="sr-only">Siguiente</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="fixed z-50 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen p-4 text-center sm:block sm:p-0">
+            <!-- Fondo oscuro -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeAddProductModal()"></div>
+            
+            <!-- Contenido del modal -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:align-middle w-full max-w-4xl">
+                <!-- Encabezado -->
+                <div class="bg-indigo-600 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-semibold text-white" id="modal-title">
+                            <i class="fas fa-box-open mr-2"></i>
+                            <span id="modalTitle">Agregar Nuevo Producto</span>
+                        </h3>
+                        <button type="button" onclick="closeAddProductModal()" class="text-white hover:text-gray-200 focus:outline-none">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- Cuerpo del formulario -->
+                <div class="p-6">
+                    <form id="addProductForm" onsubmit="return addProduct(event)" class="space-y-5">
+                                <!-- Sección de Imagen y Código de Barras -->
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                                    <!-- Imagen del Producto -->
+                                    <div class="md:col-span-3">
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-semibold text-gray-700">Imagen del Producto</label>
+                                            <div class="relative group">
+                                                <div class="w-full aspect-square rounded-xl border-2 border-dashed border-gray-300 hover:border-indigo-400 transition-colors duration-200 flex items-center justify-center bg-gray-50 overflow-hidden">
+                                                    <img id="productImagePreview" src="" alt="Vista previa de la imagen" class="absolute inset-0 w-full h-full object-cover hidden">
+                                                    <div id="defaultImagePreview" class="p-4 text-center">
+                                                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 mb-2">
+                                                            <i class="fas fa-camera text-indigo-600"></i>
+                                                        </div>
+                                                        <p class="text-xs text-gray-500">Haz clic para subir una imagen</p>
+                                                        <p class="text-[10px] text-gray-400 mt-1">PNG, JPG, GIF (máx. 5MB)</p>
+                                                    </div>
+                                                </div>
+                                                <input type="file" id="productImage" name="productImage" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                                                <button type="button" onclick="document.getElementById('productImage').click()" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"></button>
+                                                <div class="absolute -bottom-2 right-2">
+                                                    <button type="button" onclick="document.getElementById('productImage').click()" class="bg-white p-2 rounded-full shadow-md text-indigo-600 hover:bg-indigo-50 transition-colors">
+                                                        <i class="fas fa-sync-alt text-sm"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Información Básica -->
+                                    <div class="md:col-span-5 space-y-4">
+                                        <!-- Fila 1: Código y Categoría -->
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <!-- Código Interno -->
+                                            <div class="space-y-1">
+                                                <label for="internalCode" class="block text-sm font-semibold text-gray-700 flex items-center">
+                                                    Código Interno <span class="text-red-500 ml-1">*</span>
+                                                    <span class="ml-1 text-gray-400 group relative">
+                                                        <i class="fas fa-info-circle text-sm"></i>
+                                                        <span class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-200 absolute left-0 -top-8 bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap">Código único de identificación</span>
+                                                    </span>
+                                                </label>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <i class="fas fa-hashtag text-gray-400"></i>
+                                                    </div>
+                                                    <input type="text" name="internalCode" id="internalCode" required
+                                                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150"
+                                                        placeholder="Ej: REP-001">
+                                                </div>
+                                            </div>
+
+                                            <!-- Categoría -->
+                                            <div class="space-y-1">
+                                                <label for="category" class="block text-sm font-semibold text-gray-700">Categoría <span class="text-red-500">*</span></label>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <i class="fas fa-tag text-gray-400"></i>
+                                                    </div>
+                                                    <select id="category" name="category" required
+                                                        class="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm appearance-none bg-white">
+                                                        <option value="">Seleccione una categoría</option>
+                                                        <option value="filtros">Filtros</option>
+                                                        <option value="frenos">Frenos</option>
+                                                        <option value="suspension">Suspensión</option>
+                                                        <option value="motor">Motor</option>
+                                                        <option value="transmision">Transmisión</option>
+                                                        <option value="electrico">Sistema Eléctrico</option>
+                                                        <option value="escape">Sistema de Escape</option>
+                                                        <option value="direccion">Dirección</option>
+                                                        <option value="refrigeracion">Refrigeración</option>
+                                                        <option value="carroceria">Carrocería</option>
+                                                        <option value="interior">Interior</option>
+                                                        <option value="lubricantes">Lubricantes y Fluidos</option>
+                                                        <option value="accesorios">Accesorios</option>
+                                                    </select>
+                                                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Nombre del Producto -->
+                                        <div class="space-y-1">
+                                            <label for="productName" class="block text-sm font-semibold text-gray-700">Nombre del Producto <span class="text-red-500">*</span></label>
+                                            <div class="relative">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <i class="fas fa-box text-gray-400"></i>
+                                                </div>
+                                                <input type="text" name="productName" id="productName" required
+                                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150"
+                                                    placeholder="Ej: Filtro de Aceite">
+                                            </div>
+                                        </div>
+
+                                        <!-- Fila 1: Código de Producto y Marca -->
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <!-- Código de Producto -->
+                                            <div class="space-y-1">
+                                                <label for="productCode" class="block text-sm font-semibold text-gray-700">Código de Producto <span class="text-red-500">*</span></label>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <i class="fas fa-hashtag text-gray-400"></i>
+                                                    </div>
+                                                    <input type="text" name="productCode" id="productCode" required
+                                                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150"
+                                                        placeholder="Ej: PROD-001">
+                                                </div>
+                                            </div>
+
+                                            <!-- Marca -->
+                                            <div class="space-y-1">
+                                                <label for="brand" class="block text-sm font-semibold text-gray-700">Marca <span class="text-red-500">*</span></label>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <i class="fas fa-tag text-gray-400"></i>
+                                                    </div>
+                                                    <input type="text" name="brand" id="brand" required
+                                                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150"
+                                                        placeholder="Ej: Toyota, Bosch, etc.">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Ubicación (Opcional) -->
+                                        <div class="space-y-1">
+                                            <label for="location" class="block text-sm font-semibold text-gray-700">Ubicación (Opcional)</label>
+                                            <div class="relative">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                                </div>
+                                                <input type="text" name="location" id="location" 
+                                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150" 
+                                                    placeholder="Ej: Estante A2, Almacén Principal">
+                                            </div>
+                                        </div>
+
+                                        <!-- Fila 2: Descripción, Procedencia y Existencias -->
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <!-- Descripción -->
+                                            <div class="space-y-1 md:col-span-1">
+                                                <label for="description" class="block text-sm font-semibold text-gray-700">Descripción</label>
+                                                <div class="relative">
+                                                    <textarea name="description" id="description" rows="3"
+                                                        class="block w-full pl-3 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150"
+                                                        placeholder="Descripción detallada del producto"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <!-- Procedencia y Existencias -->
+                                            <div class="md:col-span-2 space-y-4">
+                                                <!-- Procedencia -->
+                                                <div class="space-y-1">
+                                                    <label for="origin" class="block text-sm font-semibold text-gray-700">Procedencia</label>
+                                                    <div class="relative">
+                                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                            <i class="fas fa-flag text-gray-400"></i>
+                                                        </div>
+                                                        <input type="text" name="origin" id="origin" 
+                                                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150" 
+                                                            placeholder="País o región de origen">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Existencias Mínima y Máxima -->
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    <!-- Existencia Mínima -->
+                                                    <div class="space-y-1">
+                                                        <label for="minStock" class="block text-sm font-semibold text-gray-700">Existencia Mínima</label>
+                                                        <div class="relative">
+                                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                                <i class="fas fa-arrow-down text-gray-400"></i>
+                                                            </div>
+                                                            <input type="number" name="minStock" id="minStock" min="0"
+                                                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150"
+                                                                placeholder="Mínimo en inventario">
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Existencia Máxima -->
+                                                    <div class="space-y-1">
+                                                        <label for="maxStock" class="block text-sm font-semibold text-gray-700">Existencia Máxima</label>
+                                                        <div class="relative">
+                                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                                <i class="fas fa-arrow-up text-gray-400"></i>
+                                                            </div>
+                                                            <input type="number" name="maxStock" id="maxStock" min="0"
+                                                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150"
+                                                                placeholder="Máximo en inventario">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sección de Características del Producto -->
+                                <div class="col-span-full bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-6">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">Características del Producto</h3>
+                                </div>
+
+                                <!-- Sección de Precios - Mejorada -->
+                                <div class="col-span-full bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                                    <!-- Encabezado mejorado -->
+                                    <div class="bg-gradient-to-r from-indigo-600 to-blue-600 p-4">
+                                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
+                                            <div class="flex items-center">
+                                                <div class="bg-white/20 p-2 rounded-lg mr-3">
+                                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                </div>
+                                                <h3 class="text-lg font-semibold text-white">Precios y Cotización</h3>
+                                            </div>
+                                            <div class="bg-black/10 px-3 py-1.5 rounded-full flex items-center">
+                                                <span class="text-white text-sm font-medium">Tasa BCV: </span>
+                                                <span id="lastUpdate" class="ml-1 font-bold text-white">Cargando...</span>
+                                                <button onclick="updateExchangeRate()" class="ml-2 text-white hover:text-indigo-100 transition-colors">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div id="rateStatus" class="mt-2 text-xs text-indigo-100 flex items-center">
+                                            <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1.5"></span>
+                                            Actualizando tipo de cambio...
+                                        </div>
+                                    </div>
+
+                                    <!-- Contenido -->
+                                    <div class="p-3">
+                                        <!-- Fila de Precios - Mejorada -->
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white rounded-xl shadow-sm">
+                                        <!-- Precio de Compra -->
+                                        <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100 shadow-sm hover:shadow-md transition-shadow">
+                                            <label class="block text-sm font-semibold text-indigo-700 mb-2 uppercase tracking-wider flex items-center">
+                                                <svg class="w-5 h-5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                Precio de Compra
+                                            </label>
+                                            <div class="relative mt-2">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <span class="text-indigo-600 font-bold text-lg">$</span>
+                                                </div>
+                                                <input type="number" step="0.01" min="0" name="purchasePrice" id="purchasePrice" required
+                                                    class="block w-full pl-10 pr-4 py-3 text-lg font-semibold border-0 border-b-2 border-indigo-200 focus:border-indigo-600 focus:ring-0 bg-transparent"
+                                                    placeholder="0.00" onchange="updateAllPrices()" oninput="updateAllPrices()">
+                                            </div>
+                                            <p class="mt-2 text-xs text-indigo-500 font-medium">Precio de adquisición</p>
+                                        </div>
+                                        
+                                        <!-- Precio DC (Mínimo) -->
+                                        <div class="bg-green-50 p-4 rounded-lg border border-green-100 shadow-sm hover:shadow-md transition-shadow">
+                                            <label for="precioDc" class="block text-sm font-semibold text-green-700 mb-2 uppercase tracking-wider flex items-center">
+                                                <svg class="w-5 h-5 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h3l-4 4-4-4h3V3h2v4zm-5 10h10v2H8v-2zm0-2h10v-2H8v2zm-4-6h2v2H4V9zm0 4h2v2H4v-2zm0-8h2v2H4V5zm0 12h2v2H4v-2z"></path>
+                                                </svg>
+                                                Precio Mínimo (DC)
+                                            </label>
+                                            <div class="relative mt-2">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <span class="text-green-600 font-bold text-lg">$</span>
+                                                </div>
+                                                <input type="number" step="0.01" min="0" id="precioDc" name="precioDc"
+                                                    class="block w-full pl-10 pr-4 py-3 text-lg font-semibold border-0 border-b-2 border-green-200 focus:border-green-600 focus:ring-0 bg-transparent"
+                                                    placeholder="0.00" onchange="updateFromPrecioDc()" oninput="updateFromPrecioDc()">
+                                            </div>
+                                            <p class="mt-2 text-xs text-green-600">20% sobre el precio de compra</p>
+                                        </div>
+                                        
+                                        <!-- Precio de Venta (ML) -->
+                                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
+                                            <label for="precioMl" class="block text-sm font-semibold text-blue-700 mb-2 uppercase tracking-wider flex items-center">
+                                                <svg class="w-5 h-5 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                                </svg>
+                                                Precio de Venta (ML)
+                                            </label>
+                                            <div class="relative mt-2">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <span class="text-blue-600 font-bold text-lg">$</span>
+                                                </div>
+                                                <input type="number" step="0.01" min="0" id="precioMl" name="precioMl"
+                                                    class="block w-full pl-10 pr-4 py-3 text-lg font-semibold border-0 border-b-2 border-blue-200 focus:border-blue-600 focus:ring-0 bg-transparent"
+                                                    placeholder="0.00" onchange="updateFromPrecioMl()" oninput="updateFromPrecioMl()">
+                                            </div>
+                                            <p class="mt-2 text-xs text-blue-600">Precio de venta al público</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Márgenes - Mejorado -->
+                                    <div class="md:col-span-2 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <!-- Margen de Ganancia - Compacto -->
+                                            <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                                                <div class="flex justify-between items-center mb-1.5">
+                                                    <div class="flex items-center">
+                                                        <span class="text-xs font-medium text-gray-500 mr-2">Margen:</span>
+                                                        <span id="profitMargin" class="text-sm font-bold text-green-600">80.0%</span>
+                                                    </div>
+                                                    <span id="profitAmount" class="text-xs font-medium text-gray-500">Bs 0.00</span>
+                                                </div>
+                                                <div class="mt-1.5">
+                                                    <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                                        <div id="marginBar" class="h-full bg-gradient-to-r from-red-400 via-yellow-400 to-green-500 transition-all duration-300" style="width: 80%"></div>
+                                                    </div>
+                                                    <div class="flex justify-between mt-1 text-[10px] font-medium">
+                                                        <span class="text-red-500">Bajo</span>
+                                                        <span class="text-yellow-600">Óptimo</span>
+                                                        <span class="text-green-600">Alto</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Controles de Margen -->
+                                            <div>
+                                                <div class="space-y-5">
+                                                    <!-- Barra de Rango Mejorada -->
+                                                    <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 shadow-sm">
+                                                        <div class="h-3 bg-gray-100 rounded-full relative overflow-hidden">
+                                                            <div id="marginRangeBar" class="absolute h-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 rounded-full shadow-inner" style="width: 50%"></div>
+                                                        </div>
+                                                        <div class="flex justify-between text-xs text-gray-500 mt-2 px-1">
+                                                            <span class="font-medium">0%</span>
+                                                            <span class="font-medium">50%</span>
+                                                            <span class="font-medium">100%</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Controles de Margen -->
+                                                    <div class="grid gap-4">
+                                                        <!-- Máximo -->
+                                                        <div class="bg-white p-4 rounded-lg border border-green-100 shadow-sm hover:shadow-md transition-all">
+                                                            <div class="flex justify-between items-center mb-2">
+                                                                <label for="maxMargin" class="block text-sm font-medium text-gray-600">Margen Máximo</label>
+                                                                <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Recomendado</span>
+                                                            </div>
+                                                            <div class="relative">
+                                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                                    <span class="text-green-400">
+                                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h3l-4 4-4-4h3V3h2v4zm-5 10h10v2H8v-2zm0-2h10v-2H8v2zm-4-6h2v2H4V9zm0 4h2v2H4v-2zm0-8h2v2H4V5zm0 12h2v2H4v-2z"></path>
+                                                                        </svg>
+                                                                    </span>
+                                                                </div>
+                                                                <input type="number" id="maxMargin" value="50" min="0" max="1000" step="0.1" 
+                                                                    class="w-full pl-10 pr-4 py-3 text-base font-bold text-green-700 bg-green-50 border-2 border-green-200 rounded-lg focus:ring-2 focus:ring-green-200 focus:border-green-500 transition-all duration-200"
+                                                                    onchange="updateAllPrices()"
+                                                                    oninput="updateAllPrices()">
+                                                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 text-sm font-bold">%</span>
+                                                            </div>
+                                                            <p class="mt-2 text-xs text-green-600">Ajusta el porcentaje máximo de ganancia</p>
+                                                        </div>
+                                                        
+                                                        <!-- Mínimo -->
+                                                        <div class="bg-white p-4 rounded-lg border border-red-100 shadow-sm hover:shadow-md transition-all">
+                                                            <div class="flex justify-between items-center mb-2">
+                                                                <label for="minMargin" class="block text-sm font-medium text-gray-600">Mínimo Requerido</label>
+                                                                <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Límite</span>
+                                                            </div>
+                                                            <div class="relative">
+                                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                                    <span class="text-red-400">
+                                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                        </svg>
+                                                                    </span>
+                                                                </div>
+                                                                <input type="number" id="minMargin" value="20" min="0" max="100" step="0.1"
+                                                                    class="w-full pl-10 pr-4 py-3 text-base font-bold text-red-700 bg-red-50 border-2 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-500 transition-all duration-200"
+                                                                    onchange="updateAllPrices()"
+                                                                    oninput="updateAllPrices()">
+                                                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-red-500 text-sm font-bold">%</span>
+                                                            </div>
+                                                            <p class="mt-2 text-xs text-red-600">Establece el margen mínimo aceptable</p>
+                                                        </div>
+                                                    </div>
+                                                    <div id="maxMarginBar" class="h-full bg-green-400 transition-all duration-300" style="width: 50%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Precios en Bs - Mejorado -->
+                                        <div class="col-span-full bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg border border-gray-200 mt-2">
+                                            <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                                <svg class="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                                </svg>
+                                                Precios en Bolívares
+                                            </h4>
+                                            
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <!-- Compra Bs -->
+                                                <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                                                    <div class="flex justify-between items-center mb-1">
+                                                        <span class="text-xs font-medium text-gray-500">Compra</span>
+                                                        <span class="text-xs font-medium text-gray-400">Bs</span>
+                                                    </div>
+                                                    <div class="relative">
+                                                        <input type="text" id="purchasePriceBs" readonly
+                                                            class="w-full text-xl font-bold text-gray-800 bg-transparent border-0 p-0 focus:ring-0"
+                                                            value="0,00">
+                                                    </div>
+                                                    <div class="mt-1 text-xs text-gray-400">
+                                                        <span id="purchasePriceBsRate">1 USD = 0,00 Bs</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Venta Bs -->
+                                                <div class="bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
+                                                    <div class="flex justify-between items-center mb-1">
+                                                        <span class="text-xs font-medium text-blue-600">Venta</span>
+                                                        <span class="text-xs font-medium text-blue-500">Bs</span>
+                                                    </div>
+                                                    <div class="relative">
+                                                        <input type="text" id="salePriceBs" readonly
+                                                            class="w-full text-xl font-bold text-blue-700 bg-transparent border-0 p-0 focus:ring-0"
+                                                            value="0,00" data-original-value="0,00">
+                                                    </div>
+                                                    <div class="mt-1 text-xs text-blue-400">
+                                                        <div id="salePriceBsRate">1 USD = 0,00 Bs</div>
+                                                        <div id="mlPriceInfo" class="text-green-600 font-medium mt-1">
+                                                            <i class="fas fa-exchange-alt mr-1"></i>
+                                                            <span id="mlPrice">0,00</span> ML
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Margen de Ganancia -->
+                                                <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                                                    <div class="flex justify-between items-center mb-1">
+                                                        <span class="text-xs font-medium text-gray-500">Margen</span>
+                                                        <span id="profitMargin" class="text-sm font-bold text-green-600">0%</span>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                                                            <div id="marginBar" class="h-full bg-gradient-to-r from-indigo-500 to-blue-500 transition-all duration-300" style="width: 0%"></div>
+                                                        </div>
+                                                        <div class="flex justify-between mt-1.5">
+                                                            <span id="dcPercent" class="text-[9px] font-medium text-indigo-500">Mínimo (DC) 0%</span>
+                                                            <span id="mlPercent" class="text-[9px] font-medium text-blue-500">Máximo (ML) 0%</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2 text-center">
+                                                        <div id="profitAmount" class="text-xs font-medium text-gray-500">
+                                                            <div>Bs 0,00 de ganancia</div>
+                                                            <div id="priceComparison" class="text-xs text-gray-400 mt-1"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Form Action Buttons -->
+                                            <div class="mt-6 pt-6 border-t border-gray-200">
+                                                <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
+                                                    <button 
+                                                        type="button" 
+                                                        onclick="closeAddProductModal()" 
+                                                        class="group inline-flex items-center justify-center px-5 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 hover:border-indigo-400 hover:text-indigo-600 transition-all duration-200 ease-in-out transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm"
+                                                    >
+                                                        <i class="fas fa-times-circle mr-2 text-gray-500 group-hover:text-indigo-500 transition-colors"></i>
+                                                        <span>Cancelar</span>
+                                                    </button>
+                                                    <button 
+                                                        type="submit" 
+                                                        class="group inline-flex items-center justify-center px-6 py-2.5 border-2 border-transparent rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 ease-in-out"
+                                                    >
+                                                        <i class="fas fa-save mr-2.5 text-indigo-100 group-hover:animate-pulse"></i>
+                                                        <span>Guardar Producto</span>
+                                                        <i class="fas fa-arrow-right ml-2 opacity-0 group-hover:opacity-100 group-hover:ml-3 transition-all duration-200"></i>
+                                                    </button>
+                                                </div>
+                                                <p class="mt-3 text-xs text-center sm:text-right text-gray-400">
+                                                    <i class="fas fa-lock mr-1"></i> Los datos están protegidos y encriptados
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tasa de cambio actual (valor por defecto)
+        let currentExchangeRate = 36.50; // Valor por defecto en caso de fallo
+        let lastUpdateTime = new Date();
+        let isUpdating = false;
+        
+        // Inicializar al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar eventos para actualización automática
+            const purchasePrice = document.getElementById('purchasePrice');
+            const minPrice = document.getElementById('minPrice');
+            const minMargin = document.getElementById('minMargin');
+            const maxMargin = document.getElementById('maxMargin');
+            
+            if (purchasePrice) purchasePrice.addEventListener('input', updateAllPrices);
+            if (minPrice) minPrice.addEventListener('input', updateAllPrices);
+            if (minMargin) minMargin.addEventListener('input', updateMarginConfig);
+            if (maxMargin) maxMargin.addEventListener('input', updateMarginConfig);
+            
+            // Inicializar con el valor por defecto
+            updateRateDisplay(false, 'Usando tasa predeterminada. Intentando actualizar...');
+            
+            // Intentar actualizar la tasa
+            updateExchangeRate().then(() => {
+                // Actualizar precios después de obtener la tasa
+                updateAllPrices();
+            }).catch(error => {
+                console.error('Error inicial:', error);
+                // Usar valor por defecto si hay error
+                currentExchangeRate = 36.50;
+                updateAllPrices();
+            });
+            
+            // Actualizar la tasa cada 30 minutos
+            setInterval(updateExchangeRate, 30 * 60 * 1000);
+        });
+        
+        // Función para hacer peticiones con manejo de CORS
+        async function fetchWithCorsFallback(url, options = {}) {
+            // Primero intentar con la URL directa
+            try {
+                const response = await fetch(url, options);
+                if (response.ok) {
+                    return await response.json();
+                }
+            } catch (e) {
+                console.warn(`Error con petición directa a ${url}:`, e);
+            }
+            
+            // Si falla, intentar con CORS proxy
+            try {
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                const response = await fetch(proxyUrl);
+                if (response.ok) {
+                    const data = await response.json();
+                    // Si la respuesta del proxy es JSON, parsearla
+                    if (data.contents) {
+                        return JSON.parse(data.contents);
+                    }
+                    return data;
+                }
+            } catch (e) {
+                console.warn(`Error con proxy CORS para ${url}:`, e);
+                throw e;
+            }
+            
+            throw new Error('No se pudo obtener la respuesta');
+        }
+        
+        // Función para actualizar la tasa de cambio
+        async function updateExchangeRate() {
+            if (isUpdating) return;
+            
+            const statusElement = document.getElementById('rateStatus');
+            if (statusElement) {
+                statusElement.textContent = 'Actualizando...';
+                statusElement.className = 'text-yellow-600 text-sm';
+            }
+
+            isUpdating = true;
+
+            try {
+                // Intentar obtener la tasa desde API oficial con fallback CORS
+                const url = 'https://bcv-api.deno.dev/v1/exchange';
+                const data = await fetchWithCorsFallback(url, { method: 'GET' });
+
+                // Parseo robusto: intentar múltiples campos comunes
+                const candidates = [
+                    data?.usd?.price,
+                    data?.USD?.value,
+                    data?.USD,
+                    data?.value,
+                    data?.price,
+                    data?.bcv?.usd,
+                    data?.rates?.USD?.value
+                ].filter(v => v != null);
+
+                const parsed = Number(candidates[0]);
+                if (!Number.isFinite(parsed) || parsed <= 0) {
+                    throw new Error('Respuesta sin tasa válida');
+                }
+
+                currentExchangeRate = parsed;
+                lastUpdateTime = new Date();
+                updateRateDisplay(true, 'Tasa actualizada correctamente');
+
+                // Guardar en localStorage para uso posterior
+                localStorage.setItem('lastExchangeRate', currentExchangeRate.toString());
+                localStorage.setItem('lastExchangeRateUpdate', lastUpdateTime.toISOString());
+                // Guardar también en Firestore si está disponible
+                try { window.saveExchangeRate && window.saveExchangeRate(currentExchangeRate); } catch (e) { /* noop */ }
+
+            } catch (error) {
+                console.error('Error al obtener la tasa de cambio:', error);
+
+                // Fallback: usar último valor guardado si es reciente (<24h)
+                const lastRate = parseFloat(localStorage.getItem('lastExchangeRate'));
+                const lastUpdate = localStorage.getItem('lastExchangeRateUpdate');
+                if (Number.isFinite(lastRate) && lastRate > 0 && lastUpdate) {
+                    const hoursSinceLastUpdate = (new Date().getTime() - new Date(lastUpdate).getTime()) / (1000 * 60 * 60);
+                    if (hoursSinceLastUpdate < 24) {
+                        currentExchangeRate = lastRate;
+                        updateRateDisplay(true, 'Usando última tasa conocida (hace ' + Math.round(hoursSinceLastUpdate * 10) / 10 + ' horas)');
+                    } else {
+                        updateRateDisplay(false, 'Error al actualizar. Valor guardado desactualizado.');
+                    }
+                } else {
+                    updateRateDisplay(false, 'Error al actualizar. Usando valor predeterminado.');
+                }
+
+            } finally {
+                isUpdating = false;
+                updateAllPrices(); // Asegurar que los precios se actualicen
+            }
+        }
+        
+        // Actualizar la visualización de la tasa
+        function updateRateDisplay(success = true, customMessage = '') {
+            const rateElement = document.getElementById('lastUpdate');
+            const statusElement = document.getElementById('rateStatus');
+            
+            if (!rateElement || !statusElement) {
+                console.warn('No se encontraron los elementos para mostrar la tasa');
+                return;
+            }
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('es-VE', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true
+            });
+            
+            try {
+                if (success) {
+                    rateElement.innerHTML = `
+                        <span class="text-white font-bold">${currentExchangeRate.toFixed(2)} Bs</span>
+                        <span class="text-indigo-100 text-sm font-normal ml-1">(${timeString})</span>
+                    `;
+                    
+                    statusElement.innerHTML = `
+                        <span class="inline-block w-2 h-2 rounded-full bg-green-400 mr-1.5"></span>
+                        ${customMessage || 'Tasa actualizada'}
+                    `;
+                    
+                } else {
+                    rateElement.innerHTML = `
+                        <span class="${currentExchangeRate > 0 ? 'text-yellow-300' : 'text-red-300'} font-bold">
+                            ${currentExchangeRate.toFixed(2)} Bs
+                        </span>
+                        <span class="text-yellow-100 text-sm font-normal ml-1">
+                            (${currentExchangeRate > 0 ? 'último conocido' : 'predeterminado'})
+                        </span>
+                    `;
+                    
+                    statusElement.innerHTML = `
+                        <span class="inline-block w-2 h-2 rounded-full ${currentExchangeRate > 0 ? 'bg-yellow-400' : 'bg-red-400'} mr-1.5"></span>
+                        ${customMessage || 'Error al actualizar la tasa'}
+                    `;
+                }
+                
+                // Actualizar la tasa en los campos de conversión
+                updateBsRateDisplays();
+                
+            } catch (error) {
+                console.error('Error al actualizar la visualización:', error);
+            }
+        }
+        
+        // Actualizar los campos que muestran la tasa de cambio
+        function updateBsRateDisplays() {
+            const rateDisplays = [
+                { id: 'purchasePriceBsRate', prefix: '1 USD = ', suffix: ' Bs' },
+                { 
+                    id: 'salePriceBsRate', 
+                    prefix: `Tasa BCV: ${formatNumber(currentExchangeRate, 2)} Bs/USD | `,
+                    suffix: ''
+                }
+            ];
+            
+            rateDisplays.forEach(display => {
+                const element = document.getElementById(display.id);
+                if (element) {
+                    element.textContent = `${display.prefix}${formatNumber(currentExchangeRate, 2)}${display.suffix}`;
+                }
+            });
+            
+            // Actualizar el precio máximo en la sección de venta
+            const salePriceBs = document.getElementById('salePriceBs');
+            const precioMlInput = document.getElementById('precioMl');
+            
+            if (salePriceBs && precioMlInput) {
+                const precioMl = parseFloat(precioMlInput.value) || 0;
+                const precioMlBs = precioMl * currentExchangeRate;
+                
+                // Actualizar el precio de venta en Bs
+                salePriceBs.value = formatNumber(precioMlBs, 2);
+                salePriceBs.dataset.originalValue = precioMlBs.toFixed(2);
+                
+                // Actualizar el precio en ML
+                const mlPriceElement = document.getElementById('mlPrice');
+                if (mlPriceElement) {
+                    mlPriceElement.textContent = formatNumber(precioMl, 2);
+                }
+            }
+        }
+        
+        // Función segura para actualizar el valor de un elemento
+        function safeSetValue(elementId, value) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.value = value;
+            }
+        }
+
+        // Actualizar todos los precios basados en los valores actuales
+        function updateAllPrices() {
+            try {
+                const purchasePriceInput = document.getElementById('purchasePrice');
+                const purchasePrice = parseFloat(purchasePriceInput?.value) || 0;
+                const exchangeRate = currentExchangeRate || 36.50; // Usar valor por defecto si es 0
+                const minMargin = parseFloat(document.getElementById('minMargin')?.value) || 20;
+                const maxMargin = parseFloat(document.getElementById('maxMargin')?.value) || 50;
+                
+                console.log('Actualizando precios con:', { 
+                    purchasePrice, 
+                    exchangeRate, 
+                    minMargin, 
+                    maxMargin 
+                });
+                
+                // Actualizar precios en Bs
+                const purchasePriceBs = purchasePrice * exchangeRate;
+                safeSetValue('purchasePriceBs', purchasePriceBs.toFixed(2).replace(/\./g, ','));
+                
+                // Calcular Precio DC como precio de compra + margen mínimo
+                const precioDc = purchasePrice * (1 + (minMargin / 100));
+                const precioDcElement = document.getElementById('precioDc');
+                if (precioDcElement) {
+                    precioDcElement.value = precioDc.toFixed(2);
+                    console.log('Precio DC actualizado:', precioDc.toFixed(2));
+                }
+                
+                // Calcular Precio ML basado en el margen máximo
+                const precioMl = purchasePrice * (1 + (maxMargin / 100));
+                const precioMlElement = document.getElementById('precioMl');
+                if (precioMlElement) {
+                    precioMlElement.value = precioMl.toFixed(2);
+                    console.log('Precio ML actualizado:', precioMl.toFixed(2));
+                }
+                
+                // Actualizar precios de venta en Bs
+                const precioDcBs = precioDc * exchangeRate;
+                const precioMlBs = precioMl * exchangeRate;
+                
+                // Actualizar precios en Bs en la interfaz
+                safeSetValue('precioDcBs', precioDcBs.toFixed(2).replace(/\./g, ','));
+                safeSetValue('precioMlBs', precioMlBs.toFixed(2).replace(/\./g, ','));
+                
+                // Actualizar margen
+                updateMarginDisplay(purchasePrice);
+                
+                // Actualizar la tasa en los campos de conversión
+                updateBsRateDisplays();
+                
+                // Actualizar la barra de margen
+                const marginBar = document.getElementById('marginBar');
+                if (marginBar) {
+                    const profit = precioMl - purchasePrice;
+                    const profitPercentage = purchasePrice > 0 ? (profit / purchasePrice) * 100 : 0;
+                    marginBar.style.width = `${Math.min(100, Math.max(0, profitPercentage))}%`;
+                }
+                
+                console.log('Precios actualizados:', {
+                    purchasePrice,
+                    precioDc,
+                    precioMl,
+                    exchangeRate,
+                    precioDcBs,
+                    precioMlBs
+                });
+                
+            } catch (error) {
+                console.error('Error en updateAllPrices:', error);
+            }
+        }
+
+        // Actualizar precios de venta
+        function updateSalePrices(purchasePrice, exchangeRate) {
+            try {
+                const precioDcInput = document.getElementById('precioDc');
+                const precioMlInput = document.getElementById('precioMl');
+                const salePriceBs = document.getElementById('salePriceBs');
+                const profitMarginElement = document.getElementById('profitMargin');
+                const profitAmountElement = document.getElementById('profitAmount');
+                const priceComparisonElement = document.getElementById('priceComparison');
+                const marginBar = document.getElementById('marginBar');
+                const dcPercentElement = document.getElementById('dcPercent');
+                const mlPercentElement = document.getElementById('mlPercent');
+                const mlPriceElement = document.getElementById('mlPrice');
+
+                // Obtener valores numéricos
+                const precioDc = parseFloat(precioDcInput.value) || 0;
+                const precioMl = parseFloat(precioMlInput.value) || 0;
+                const currentPrice = parseFloat(salePriceBs.dataset.originalValue || '0') / exchangeRate;
+                
+                // Calcular precios en Bs
+                const precioDcBs = precioDc * exchangeRate;
+                const precioMlBs = precioMl * exchangeRate;
+                
+                // Actualizar precio ML
+                if (mlPriceElement) {
+                    mlPriceElement.textContent = formatNumber(precioMl, 2);
+                }
+                
+                // Calcular porcentajes de diferencia
+                let dcPercentage = 0;
+                let mlPercentage = 0;
+                
+                // Calcular el porcentaje del precio DC basado en el precio de compra
+                if (precioDc > 0 && purchasePrice > 0) {
+                    dcPercentage = ((precioDc - purchasePrice) / purchasePrice) * 100;
+                    // Actualizar el valor mostrado con el porcentaje calculado
+                    if (dcPercentElement) {
+                        dcPercentElement.textContent = `Mínimo (DC) ${dcPercentage.toFixed(1)}%`;
+                    }
+                    // Si se está editando el precio DC, actualizar el precio de venta
+                    if (document.activeElement === precioDcInput && salePriceBs) {
+                        salePriceBs.value = formatNumber(precioDc * exchangeRate, 2);
+                        salePriceBs.dataset.originalValue = (precioDc * exchangeRate).toFixed(2);
+                    }
+                } else if (precioDc > 0) {
+                    // Calcular diferencia porcentual con el precio actual
+                    dcPercentage = ((currentPrice - precioDc) / precioDc) * 100;
+                }
+                
+                if (precioMl > 0) {
+                    mlPercentage = ((currentPrice - precioMl) / precioMl) * 100;
+                }
+                
+                // Actualizar porcentajes en la interfaz
+                if (dcPercentElement) {
+                    dcPercentElement.textContent = `Mínimo (DC) ${dcPercentage >= 0 ? '+' : ''}${dcPercentage.toFixed(1)}%`;
+                }
+                
+                if (mlPercentElement) {
+                    mlPercentElement.textContent = `Máximo (ML) ${mlPercentage >= 0 ? '+' : ''}${mlPercentage.toFixed(1)}%`;
+                }
+                
+                // Actualizar comparación de precios
+                if (priceComparisonElement) {
+                    let comparisonText = '';
+                    if (currentPrice > 0) {
+                        if (currentPrice < precioDc) {
+                            comparisonText = `(${Math.abs(dcPercentage).toFixed(1)}% por debajo del mínimo)`;
+                        } else if (currentPrice > precioMl) {
+                            comparisonText = `(${mlPercentage.toFixed(1)}% por encima del máximo)`;
+                        } else if (precioDc > 0 && precioMl > 0) {
+                            comparisonText = `(${dcPercentage.toFixed(1)}% sobre el mínimo, ${Math.abs(mlPercentage).toFixed(1)}% bajo el máximo)`;
+                        }
+                    }
+                    priceComparisonElement.textContent = comparisonText;
+                }
+                
+                // Actualizar margen de ganancia
+                const profit = (currentPrice * exchangeRate) - purchasePrice;
+                const profitPercentage = purchasePrice > 0 ? (profit / purchasePrice) * 100 : 0;
+                
+                if (profitMarginElement) {
+                    profitMarginElement.textContent = `${profitPercentage >= 0 ? '+' : ''}${profitPercentage.toFixed(1)}%`;
+                    profitMarginElement.className = `text-sm font-bold ${
+                        profitPercentage < 0 ? 'text-red-500' : 'text-green-600'
+                    }`;
+                }
+                
+                if (profitAmountElement) {
+                    const profitText = profitAmountElement.querySelector('div:first-child');
+                    if (profitText) {
+                        profitText.textContent = `Bs ${formatNumber(profit, 2)} de ganancia`;
+                    }
+                }
+                
+                // Actualizar barra de margen (posición entre DC y ML)
+                if (marginBar) {
+                    let marginPercentage = 0;
+                    if (precioMl > precioDc && currentPrice >= precioDc) {
+                        marginPercentage = Math.min(100, ((currentPrice - precioDc) / (precioMl - precioDc)) * 100);
+                    }
+                    marginBar.style.width = `${marginPercentage}%`;
+                }
+                
+                return { 
+                    precioDc, 
+                    precioMl, 
+                    precioDcBs, 
+                    precioMlBs, 
+                    marginDc: dcPercentage, 
+                    marginMl: mlPercentage 
+                };
+                
+            } catch (error) {
+                console.error('Error en updateSalePrices:', error);
+                return { precioDc: 0, precioMl: 0, precioDcBs: 0, precioMlBs: 0, marginDc: 0, marginMl: 0 };
+            }
+        }
+
+        // Manejar cambio manual del Precio DC
+        function handlePrecioDcChange() {
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+            const precioDcInput = document.getElementById('precioDc');
+            const precioDc = parseFloat(precioDcInput.value) || 0;
+            
+            // Actualizar el precio en la tabla si estamos en modo edición
+            const productId = document.getElementById('productId').value;
+            if (productId) {
+                const productIndex = products.findIndex(p => p.id === productId);
+                if (productIndex !== -1) {
+                    // Actualizar el precio en el objeto del producto
+                    products[productIndex].priceDc = precioDc;
+                    
+                    // Si hay un precio de compra, actualizar el margen
+                    if (purchasePrice > 0) {
+                        const margin = ((precioDc / purchasePrice) - 1) * 100;
+                        document.getElementById('minMargin').value = margin.toFixed(1);
+                        updateMarginDisplay(purchasePrice);
+                    }
+                    
+                    // Actualizar la visualización de la tabla
+                    loadProducts();
+                    updateInventoryStats();
+                }
+            } else if (purchasePrice > 0) {
+                // Si no estamos en modo edición pero hay precio de compra, solo actualizar márgenes
+                const margin = ((precioDc / purchasePrice) - 1) * 100;
+                document.getElementById('minMargin').value = margin.toFixed(1);
+                updateMarginDisplay(purchasePrice);
+                updateBsRateDisplays();
+            }
+        }
+        
+        // Actualizar desde Precio DC (usado para cálculos automáticos)
+        function updateFromPrecioDc() {
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+            const minMargin = parseFloat(document.getElementById('minMargin').value) || 20;
+            
+            // Solo actualizar si el campo no tiene el foco (para no interferir con la edición)
+            if (document.activeElement.id !== 'precioDc') {
+                const precioDc = purchasePrice * (1 + (minMargin / 100));
+                document.getElementById('precioDc').value = precioDc.toFixed(2);
+            }
+            
+            // Actualizar el resto de precios
+            const maxMargin = parseFloat(document.getElementById('maxMargin').value) || 50;
+            const exchangeRate = currentExchangeRate || 36.50;
+            
+            // Calcular Precio ML basado en el margen máximo
+            const precioMl = purchasePrice * (1 + (maxMargin / 100));
+            document.getElementById('precioMl').value = precioMl.toFixed(2);
+            
+            updateSalePrices(purchasePrice, exchangeRate);
+            updateMarginDisplay(purchasePrice);
+            updateBsRateDisplays();
+        }
+
+        // Actualizar desde Precio DC
+        function updateFromPrecioDc() {
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+            const precioDc = parseFloat(document.getElementById('precioDc').value) || 0;
+            const exchangeRate = currentExchangeRate || 36.50;
+            
+            if (precioDc > 0) {
+                // Actualizar el precio de venta en Bs
+                const salePriceBs = document.getElementById('salePriceBs');
+                const precioDcBs = precioDc * exchangeRate;
+                
+                if (salePriceBs) {
+                    salePriceBs.value = formatNumber(precioDcBs, 2);
+                    salePriceBs.dataset.originalValue = precioDcBs.toFixed(2);
+                }
+                
+                // Actualizar el porcentaje
+                const dcPercentElement = document.getElementById('dcPercent');
+                if (purchasePrice > 0 && dcPercentElement) {
+                    const percentage = ((precioDc - purchasePrice) / purchasePrice) * 100;
+                    dcPercentElement.textContent = `Mínimo (DC) ${percentage >= 0 ? '+' : ''}${percentage.toFixed(1)}%`;
+                }
+                
+                // Actualizar la barra de margen
+                updateAllPrices();
+            }
+        }
+        
+        // Actualizar desde Precio ML
+        function updateFromPrecioMl() {
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+            const precioMl = parseFloat(document.getElementById('precioMl').value) || 0;
+            const exchangeRate = currentExchangeRate || 36.50;
+
+            if (purchasePrice > 0) {
+                // Calcular el margen basado en el precio ML ingresado
+                const margin = ((precioMl / purchasePrice) - 1) * 100;
+
+                // Actualizar el margen máximo
+                document.getElementById('maxMargin').value = margin.toFixed(1);
+                
+                // Actualizar el precio de venta para que coincida con el precio ML
+                document.getElementById('salePrice').value = precioMl.toFixed(2);
+                
+                // Actualizar el precio en Bs
+                const salePriceBs = (precioMl * exchangeRate).toFixed(2).replace(/\./g, ',');
+                document.getElementById('salePriceBs').value = salePriceBs;
+                document.getElementById('salePriceBs').setAttribute('data-original-value', salePriceBs);
+                
+                // Actualizar el texto de la tasa de cambio
+                document.getElementById('salePriceBsRate').textContent = `1 USD = ${exchangeRate.toFixed(2)} Bs`;
+
+                // Mantener el precio DC con el margen mínimo (sin forzar actualización si está siendo editado)
+                if (document.activeElement.id !== 'precioDc') {
+                    const minMargin = parseFloat(document.getElementById('minMargin').value) || 20;
+                    const precioDc = purchasePrice * (1 + (minMargin / 100));
+                    document.getElementById('precioDc').value = precioDc.toFixed(2);
+                }
+
+                updateSalePrices(purchasePrice, exchangeRate);
+                updateMarginDisplay(purchasePrice);
+                updateBsRateDisplays();
+            }
+        }
+
+        // Actualizar configuración de márgenes
+        function updateMarginConfig() {
+            // Esta función ahora solo actualiza la UI del margen
+            updateAllPrices();
+        }
+
+        // Restablecer márgenes a valores por defecto
+        function resetMargins() {
+            document.getElementById('minMargin').value = '30';
+            document.getElementById('maxMargin').value = '50';
+            updateAllPrices();
+        }
+
+        // Actualizar la visualización del margen
+        function updateMarginDisplay(purchasePrice) {
+            const salePriceElement = document.getElementById('precioDc');
+            if (!salePriceElement) {
+                console.warn('Elemento precioDc no encontrado');
+                return;
+            }
+            
+            const salePrice = parseFloat(salePriceElement.value) || 0;
+            let profitMargin = 0;
+            
+            if (purchasePrice > 0) {
+                profitMargin = ((salePrice - purchasePrice) / purchasePrice) * 100;
+            }
+            
+            // Actualizar porcentaje de margen
+            const profitMarginElement = document.getElementById('profitMargin');
+            if (profitMarginElement) {
+                profitMarginElement.textContent = profitMargin.toFixed(1) + '%';
+                
+                // Cambiar color según el margen
+                if (profitMargin < (parseFloat(document.getElementById('minMargin')?.value) || 20)) {
+                    profitMarginElement.className = 'text-xs font-semibold text-red-600';
+                } else if (profitMargin > (parseFloat(document.getElementById('maxMargin')?.value) || 50)) {
+                    profitMarginElement.className = 'text-xs font-semibold text-green-600';
+                } else {
+                    profitMarginElement.className = 'text-xs font-semibold text-yellow-600';
+                }
+            }
+            
+            // Actualizar barra de margen
+            const marginBar = document.getElementById('marginBar');
+            if (marginBar) {
+                const minMargin = parseFloat(document.getElementById('minMargin')?.value) || 20;
+                const maxMargin = parseFloat(document.getElementById('maxMargin')?.value) || 50;
+                
+                // Calcular ancho de la barra (0-100%)
+                let barWidth = 0;
+                if (minMargin > 0) {
+                    if (profitMargin <= minMargin) {
+                        barWidth = (profitMargin / minMargin) * 33;
+                    } else if (profitMargin <= maxMargin) {
+                        barWidth = 33 + ((profitMargin - minMargin) / (maxMargin - minMargin)) * 34;
+                    } else {
+                        barWidth = 67 + (Math.min(profitMargin - maxMargin, 50) / 50) * 33;
+                    }
+                }
+                
+                marginBar.style.width = Math.min(Math.max(barWidth, 0), 100) + '%';
+            }
+        }
+    </script>
+
+    <script>
+        // Variables globales
+        let products = [];
+        let allProducts = []; // Para mantener una copia completa de los productos
+        let isEditMode = false;
+        let currentProductId = null;
+        
+        // Variables de paginación
+        let currentPage = 1;
+        const itemsPerPage = 10; // Número de productos por página
+        
+        // Tasa de cambio BCV
+        let bcvRate = 36.1234; // Valor por defecto, se actualiza al cargar la página
+        
+        // Inicializar búsqueda y cargar productos al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Limpiar productos existentes al cargar la página
+            window.products = [];
+            
+            // Cargar productos desde localStorage
+            loadAllProducts();
+            
+            // Configurar búsqueda
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const filteredProducts = window.products.filter(product => 
+                        (product.nombre && product.nombre.toLowerCase().includes(searchTerm)) ||
+                        (product.codigo && product.codigo.toLowerCase().includes(searchTerm)) ||
+                        (product.marca && product.marca.toLowerCase().includes(searchTerm))
+                    );
+                    
+                    // Actualizar la tabla con los productos filtrados
+                    updateProductsTable(filteredProducts);
+                });
+            }
+        });
+        
+        // Función para actualizar la tabla de productos
+        function updateProductsTable(productsToShow) {
+            console.log('Actualizando tabla de productos...', productsToShow);
+            
+            // Usar el ID correcto del tbody
+            const tbody = document.getElementById('products-table-body');
+            
+            if (!tbody) {
+                console.error('No se encontró el elemento con ID products-table-body');
+                return;
+            }
+            
+            // Limpiar la tabla
+            tbody.innerHTML = '';
+            
+            // Mostrar mensaje si no hay productos
+            if (!productsToShow || productsToShow.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                            No se encontraron productos
+                        </td>
+                    </tr>
+                `;
+                console.log('No hay productos para mostrar');
+                return;
+            }
+            
+            console.log(`Mostrando ${productsToShow.length} productos en la tabla`);
+            
+            // Agregar cada producto a la tabla
+            productsToShow.forEach((product, index) => {
+                try {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${product.code || 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.internalCode || 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${product.name || 'Sin nombre'}</div>
+                            <div class="text-sm text-gray-500">${product.description || ''}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.brand || 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                            $${product.price ? parseFloat(product.price).toFixed(2) : '0.00'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                            $${product.priceMl ? parseFloat(product.priceMl).toFixed(2) : '0.00'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                            Bs. ${product.priceMl ? (parseFloat(product.priceMl) * parseFloat(window.bcvRate || 1)).toFixed(2) : '0.00'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm ${(product.stock || 0) > 0 ? 'text-green-600' : 'text-red-600'}">
+                            ${product.stock || 0} ${(product.stock || 0) === 1 ? 'unidad' : 'unidades'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick="editarProducto('${product.id}')" class="text-indigo-600 hover:text-indigo-900 mr-3" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="confirmarEliminar('${product.id}')" class="text-red-600 hover:text-red-900" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                } catch (error) {
+                    console.error(`Error al renderizar el producto ${index}:`, error, product);
+                }
+            });
+            
+            console.log('Tabla de productos actualizada');
+        }
+        
+        // Formatear número con separadores de miles y decimales
+        function formatNumber(number, decimals = 2) {
+            return new Intl.NumberFormat('es-VE', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            }).format(number);
+        }
+
+        // Mostrar el modal de agregar producto
+        function showAddProductModal() {
+            console.log('Mostrando modal de agregar producto');
+            
+            // Limpiar el formulario
+            document.getElementById('addProductForm').reset();
+            
+            // Resetear la vista previa de la imagen
+            const imagePreview = document.getElementById('imagePreview');
+            if (imagePreview) {
+                imagePreview.src = 'https://via.placeholder.com/300';
+            }
+            
+            // Establecer el siguiente código de producto disponible y hacerlo de solo lectura
+            const internalCodeInput = document.getElementById('internalCode');
+            const nextCode = getNextProductCode();
+            internalCodeInput.value = nextCode;
+            internalCodeInput.readOnly = true;
+            internalCodeInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+            
+            // Resetear el ID del producto actual
+            currentProductId = null;
+            isEditMode = false;
+            
+            // Actualizar el título del modal
+            document.getElementById('modal-title').textContent = 'Agregar Producto';
+            
+            // Mostrar el modal
+            document.getElementById('addProductModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            
+            // Enfocar el primer campo del formulario (después del código interno)
+            setTimeout(() => {
+                const firstInput = document.querySelector('#productName');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }, 100);
+            
+            // Actualizar los precios iniciales
+            updateAllPrices();
+        }
+
+        // Cerrar el modal de agregar producto
+        function closeAddProductModal() {
+            console.log('Cerrando modal de agregar producto');
+            const modal = document.getElementById('addProductModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+                
+                // Resetear el formulario
+                const form = document.getElementById('addProductForm');
+                if (form) {
+                    form.reset();
+                }
+            }
+        }
+
+        // Load navbar
+        fetch('components/shared/navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar').innerHTML = data;
+                // Highlight current page in navigation
+                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                document.querySelectorAll('nav a').forEach(link => {
+                    if (link.getAttribute('href') === currentPage) {
+                        link.classList.add('text-blue-400', 'font-semibold');
+                    }
+                });
+            });
+
+        // Función para filtrar productos según el término de búsqueda
+        function filterProducts(searchTerm) {
+            console.log('Buscando:', searchTerm);
+            
+            if (!searchTerm || searchTerm.trim() === '') {
+                products = [...allProducts];
+                currentPage = 1;
+                loadProducts();
+                return;
+            }
+            
+            const term = searchTerm.trim().toLowerCase();
+            const terms = term.split(' ').filter(t => t.length > 0);
+            
+            console.log('Productos a filtrar:', allProducts.length);
+            
+            products = allProducts.filter(product => {
+                // Convertir a minúsculas una sola vez para optimización
+                const productData = {
+                    internalCode: (product.internalCode || '').toLowerCase(),
+                    code: (product.code || '').toLowerCase(),
+                    name: (product.name || '').toLowerCase(),
+                    brand: (product.brand || '').toLowerCase(),
+                    description: (product.description || '').toLowerCase(),
+                    category: (product.category || '').toLowerCase()
+                };
+                
+                // Si hay múltiples términos, todos deben coincidir (búsqueda AND)
+                if (terms.length > 1) {
+                    return terms.every(term => 
+                        productData.internalCode.includes(term) ||
+                        productData.code.includes(term) ||
+                        productData.name.includes(term) ||
+                        productData.brand.includes(term) ||
+                        productData.description.includes(term) ||
+                        productData.category.includes(term)
+                    );
+                }
+                
+                // Búsqueda con un solo término (búsqueda OR)
+                return (
+                    productData.internalCode.includes(term) ||
+                    productData.code.includes(term) ||
+                    productData.name.includes(term) ||
+                    productData.brand.includes(term) ||
+                    productData.description.includes(term) ||
+                    productData.category.includes(term)
+                );
+            });
+            
+            console.log('Productos encontrados:', products.length);
+            currentPage = 1;
+            loadProducts();
+        }
+        
+        // Función para obtener el siguiente código de producto
+        function getNextProductCode() {
+            const savedProducts = JSON.parse(localStorage.getItem('products') || '[]');
+            let maxNumber = 0;
+            
+            // Buscar el número más alto en los códigos existentes
+            savedProducts.forEach(product => {
+                if (product.internalCode && product.internalCode.startsWith('PROD-')) {
+                    const number = parseInt(product.internalCode.split('-')[1]);
+                    if (!isNaN(number) && number > maxNumber) {
+                        maxNumber = number;
+                    }
+                }
+            });
+            
+            // Si no hay productos, empezamos desde 1, si no, incrementamos el máximo
+            const nextNumber = savedProducts.length === 0 ? 1 : maxNumber + 1;
+            
+            // Formatear el número con ceros a la izquierda (5 dígitos)
+            return `PROD-${String(nextNumber).padStart(5, '0')}`;
+        }
+
+        // Función para cargar todos los productos desde localStorage
+        function loadAllProducts() {
+            try {
+                console.log('--- Iniciando carga de productos ---');
+                
+                // 1. Verificar si ya hay productos en memoria
+                if (window.allProducts && Array.isArray(window.allProducts) && window.allProducts.length > 0) {
+                    console.log('✅ Productos ya cargados en memoria:', window.allProducts.length);
+                    return true;
+                }
+                
+                // 2. Intentar cargar desde localStorage
+                const savedProducts = localStorage.getItem('products');
+                console.log('📦 Datos en localStorage:', savedProducts ? 'Encontrados' : 'No hay datos guardados');
+                
+                // 3. Procesar los productos guardados
+                if (savedProducts) {
+                    try {
+                        const parsedProducts = JSON.parse(savedProducts);
+                        if (Array.isArray(parsedProducts)) {
+                            if (parsedProducts.length > 0) {
+                                console.log(`📥 ${parsedProducts.length} productos cargados desde localStorage`);
+                                allProducts = parsedProducts;
+                                products = [...allProducts];
+                                
+                                // Actualizar interfaz
+                                updateProductsTable(products);
+                                updatePaginationInfo();
+                                updatePageNumbers();
+                                updateInventoryStats();
+                                
+                                console.log('✅ Interfaz actualizada con productos existentes');
+                                return true;
+                            } else {
+                                console.log('ℹ️ No hay productos guardados en localStorage');
+                            }
+                        } else {
+                            console.warn('⚠️ Los datos en localStorage no son un array');
+                        }
+                    } catch (parseError) {
+                        console.error('❌ Error al analizar productos:', parseError);
+                    }
+                }
+                
+                // 4. Si llegamos aquí, crear productos de ejemplo
+                console.log('🔄 Creando productos de ejemplo...');
+                allProducts = createTestProducts();
+                products = [...allProducts];
+                
+                // Guardar los productos de ejemplo
+                console.log('💾 Guardando productos de ejemplo...');
+                const saveSuccess = saveProducts();
+                
+                if (saveSuccess) {
+                    console.log(`✅ ${allProducts.length} productos de ejemplo creados y guardados`);
+                    
+                    // Actualizar interfaz
+                    updateProductsTable(products);
+                    updatePaginationInfo();
+                    updatePageNumbers();
+                    updateInventoryStats();
+                    
+                    console.log('🎉 Interfaz actualizada con productos de ejemplo');
+                    return true;
+                } else {
+                    throw new Error('No se pudieron guardar los productos de ejemplo');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error crítico en loadAllProducts:', error);
+                
+                // Mostrar error al usuario
+                showNotification('Error al cargar los productos. Por favor, recarga la página.', 'error');
+                
+                // Intentar recuperación con array vacío
+                allProducts = [];
+                products = [];
+                
+                try {
+                    localStorage.setItem('products', JSON.stringify([]));
+                } catch (e) {
+                    console.error('❌ No se pudo inicializar el almacenamiento local:', e);
+                }
+                
+                return false;
+            } finally {
+                console.log('--- Finalizada carga de productos ---');
+            }
+        }
+        
+        // Función para crear productos de prueba
+        function createTestProducts() {
+            console.log('Creando productos de prueba...');
+            return [
+                {
+                    id: '1',
+                    internalCode: 'PROD-001',
+                    code: 'P001',
+                    name: 'Producto de Prueba',
+                    brand: 'Marca Ejemplo',
+                    description: 'Este es un producto de prueba',
+                    category: 'Electrónicos',
+                    price: 100,
+                    priceDc: 100,
+                    priceMl: 95,
+                    stock: 10,
+                    minStock: 5,
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: '2',
+                    internalCode: 'PROD-002',
+                    code: 'P002',
+                    name: 'Segundo Producto',
+                    brand: 'Otra Marca',
+                    description: 'Otro producto de ejemplo',
+                    category: 'Hogar',
+                    price: 200,
+                    priceDc: 200,
+                    priceMl: 190,
+                    stock: 20,
+                    minStock: 3,
+                    createdAt: new Date().toISOString()
+                }
+            ];
+        }
+        
+        // Función para guardar productos en localStorage
+        function saveProducts() {
+            console.log('🔄 Iniciando guardado de productos...');
+            
+            try {
+                // 1. Validar que products sea un array
+                if (!Array.isArray(products)) {
+                    console.error('❌ Error: products no es un array, inicializando array vacío');
+                    products = [];
+                }
+                
+                console.log(`💾 Preparando para guardar ${products.length} productos...`);
+                
+                // 2. Procesar productos
+                const now = new Date().toISOString();
+                const productsToSave = products.map((product, index) => {
+                    // Si el producto no tiene ID, generamos uno
+                    if (!product.id) {
+                        console.log(`🆕 Generando ID para producto nuevo #${index + 1}`);
+                        return {
+                            ...product,
+                            id: `prod_${Date.now()}_${index}`,
+                            createdAt: now,
+                            updatedAt: now
+                        };
+                    }
+                    // Actualizar solo la fecha de actualización para productos existentes
+                    return {
+                        ...product,
+                        updatedAt: now
+                    };
+                });
+                
+                console.log(`📝 ${productsToSave.length} productos procesados para guardar`);
+                
+                // 3. Actualizar referencias globales
+                window.allProducts = [...productsToSave];
+                window.products = [...productsToSave];
+                
+                // 4. Guardar en localStorage
+                try {
+                    localStorage.setItem('products', JSON.stringify(productsToSave));
+                    console.log('✅ Productos guardados en localStorage');
+                    
+                    // 5. Actualizar interfaz
+                    updateProductsTable(productsToSave);
+                    updatePaginationInfo();
+                    updatePageNumbers();
+                    updateInventoryStats();
+                    
+                    console.log('🔄 Interfaz actualizada');
+                    
+                    // 6. Notificar a otras pestañas
+                    window.dispatchEvent(new CustomEvent('inventoryUpdated', {
+                        detail: { 
+                            itemCount: productsToSave.length,
+                            timestamp: now
+                        }
+                    }));
+                    
+                    console.log('✅ Guardado completado exitosamente');
+                    return true;
+                    
+                } catch (storageError) {
+                    console.error('❌ Error al guardar en localStorage:', storageError);
+                    showNotification('Error al guardar en el almacenamiento local. Verifica que tengas espacio disponible.', 'error');
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error crítico en saveProducts:', error);
+                showNotification('Error inesperado al guardar los productos. Por favor, inténtalo de nuevo.', 'error');
+                return false;
+            } finally {
+                console.log('--- Finalizado proceso de guardado ---');
+            }
+        }
+        
+        // Función para actualizar la información de paginación
+        function updatePaginationInfo() {
+            const totalProducts = allProducts.length;
+            const startItem = (currentPage - 1) * itemsPerPage + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, totalProducts);
+            
+            // Actualizar el texto de información
+            const paginationInfo = document.getElementById('paginationInfo');
+            if (paginationInfo) {
+                paginationInfo.textContent = `Mostrando ${startItem} a ${endItem} de ${totalProducts} productos`;
+            }
+            
+            // Actualizar estado de los botones de navegación
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage * itemsPerPage >= totalProducts;
+            document.getElementById('prevPageMobile').disabled = currentPage === 1;
+            document.getElementById('nextPageMobile').disabled = currentPage * itemsPerPage >= totalProducts;
+            
+            // Actualizar números de página
+            updatePageNumbers();
+        }
+
+        // Función para actualizar los números de página
+        function updatePageNumbers() {
+            const totalPages = Math.ceil(allProducts.length / itemsPerPage);
+            const pageNumbersContainer = document.getElementById('pageNumbers');
+            if (!pageNumbersContainer) return;
+            
+            pageNumbersContainer.innerHTML = '';
+            
+            // Mostrar máximo 5 números de página (2 a la izquierda, la actual, y 2 a la derecha)
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            
+            // Ajustar si estamos cerca del inicio o del final
+            if (currentPage <= 3) {
+                endPage = Math.min(5, totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                startPage = Math.max(1, totalPages - 4);
+            }
+            
+            // Agregar botón de primera página si es necesario
+            if (startPage > 1) {
+                const firstPageBtn = document.createElement('button');
+                firstPageBtn.textContent = '1';
+                firstPageBtn.className = 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium';
+                firstPageBtn.onclick = () => changePage(1);
+                pageNumbersContainer.appendChild(firstPageBtn);
+                
+                // Agregar puntos suspensivos si hay más páginas antes
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700';
+                    ellipsis.textContent = '...';
+                    pageNumbersContainer.appendChild(ellipsis);
+                }
+            }
+            
+            // Agregar números de página
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = `relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                    i === currentPage 
+                        ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600' 
+                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                }`;
+                pageBtn.onclick = () => changePage(i);
+                pageNumbersContainer.appendChild(pageBtn);
+            }
+            
+            // Agregar puntos suspensivos y última página si es necesario
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700';
+                    ellipsis.textContent = '...';
+                    pageNumbersContainer.appendChild(ellipsis);
+                }
+                
+                const lastPageBtn = document.createElement('button');
+                lastPageBtn.textContent = totalPages;
+                lastPageBtn.className = 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium';
+                lastPageBtn.onclick = () => changePage(totalPages);
+                pageNumbersContainer.appendChild(lastPageBtn);
+            }
+        }
+        
+        // Función para cambiar de página
+        function changePage(page) {
+            const totalPages = Math.ceil(allProducts.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            loadProducts();
+        }
+
+        // Función para cargar los productos en la tabla con paginación
+        function loadProducts() {
+            console.log('Cargando productos...');
+            const tbody = document.getElementById('products-table-body');
+            if (!tbody) {
+                console.error('No se encontró el elemento con ID products-table-body');
+                return;
+            }
+            
+            // Debug: Mostrar todos los productos cargados
+            console.log('Todos los productos cargados (allProducts):', JSON.parse(JSON.stringify(allProducts)));
+
+            tbody.innerHTML = '';
+            
+            // Asegurarse de que allProducts sea un array
+            if (!Array.isArray(allProducts)) {
+                allProducts = [];
+            }
+            
+            // Filtrar y paginar los productos
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedProducts = allProducts.slice(startIndex, endIndex);
+            
+            console.log(`Mostrando ${paginatedProducts.length} de ${allProducts.length} productos (página ${currentPage})`);
+            
+            if (paginatedProducts.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td colspan="9" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        ${allProducts.length === 0 ? 'No hay productos registrados' : 'No hay productos en esta página'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+                updatePaginationInfo();
+                return;
+            }
+            
+            // Función para formatear precios
+            const formatPrice = (price) => {
+                const num = Number(price) || 0;
+                return num.toLocaleString('es-VE', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                    useGrouping: true
+                });
+            };
+
+            // Procesar cada producto para la tabla
+            paginatedProducts.forEach(product => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50';
+                
+                // Debug: Mostrar el producto actual que se está procesando
+                console.log('Procesando producto:', {
+                    id: product.id,
+                    name: product.name,
+                    rawPriceDc: product.priceDc,
+                    rawPriceMl: product.priceMl,
+                    productObject: product
+                });
+                
+                // Asegurar que los precios sean números
+                const priceDc = (product.priceDc !== undefined && product.priceDc !== null) ? Number(product.priceDc) : 0;
+                const priceMl = (product.priceMl !== undefined && product.priceMl !== null) ? Number(product.priceMl) : 0;
+                
+                // Obtener precios formateados con 2 decimales
+                const formattedPriceDc = priceDc.toLocaleString('es-VE', { 
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                });
+                
+                const formattedPriceMl = priceMl.toLocaleString('es-VE', { 
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                });
+                
+                const formattedPriceBs = (priceMl * currentExchangeRate).toLocaleString('es-VE', { 
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                });
+                
+                // Depuración
+                console.log('Mostrando producto en tabla:', {
+                    id: product.id,
+                    name: product.name,
+                    priceDc: priceDc,
+                    priceMl: priceMl,
+                    currentExchangeRate: currentExchangeRate,
+                    formattedPriceDc: formattedPriceDc,
+                    formattedPriceMl: formattedPriceMl,
+                    formattedPriceBs: formattedPriceBs
+                });
+                
+                tr.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-medium">${product.internalCode || 'N/A'}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${product.code || 'N/A'}</td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center">
+                            ${product.image ? `<div class="flex-shrink-0 h-10 w-10 mr-3"><img class="h-10 w-10 rounded object-cover" src="${product.image}" alt="${product.name}"></div>` : ''}
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">${product.name || 'Sin nombre'}</div>
+                                <div class="text-xs text-gray-500">${product.category || 'Sin categoría'}</div>
+                                ${product.description ? `<div class="text-xs text-gray-400 mt-1 truncate max-w-xs">${product.description}</div>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${product.brand || 'N/A'}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-medium text-right">$${formattedPriceDc}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-medium text-right">$${formattedPriceMl}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-medium text-right">${formattedPriceBs} Bs</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-right text-sm text-gray-900 font-medium">${product.stock || 0} u.</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${product.stock > (product.minStock || 0) ? 'bg-green-100 text-green-800' : 
+                              product.stock > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
+                            ${product.stock || 0} ${product.minStock ? `/ ${product.minStock}` : ''}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium space-x-1">
+                        <button onclick="viewProduct('${product.id}')" class="text-indigo-600 hover:text-indigo-900 p-1 rounded-full hover:bg-indigo-50" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="viewProduct('${product.id}', true)" class="text-yellow-600 hover:text-yellow-900 p-1 rounded-full hover:bg-yellow-50" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="if(confirm('¿Estás seguro de eliminar este producto?')) deleteProduct('${product.id}')" class="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>`;
+                tbody.appendChild(tr);
+            });
+            
+            // Actualizar la información de paginación
+            updatePaginationInfo();
+        }
+
+        // Función para ver/editar un producto
+        function viewProduct(productId, editMode = false) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            // Establecer el modo de edición
+            isEditMode = editMode;
+            currentProductId = productId;
+
+            // Llenar el formulario con los datos del producto y hacer el campo de código interno de solo lectura
+            const internalCodeInput = document.getElementById('internalCode');
+            internalCodeInput.value = product.internalCode || '';
+            internalCodeInput.readOnly = true;
+            internalCodeInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+            document.getElementById('productName').value = product.name || '';
+            document.getElementById('category').value = product.category || '';
+            document.getElementById('barcode').value = product.barcode || '';
+            document.getElementById('purchasePrice').value = product.purchasePrice || '';
+            
+            // Actualizar los campos de precio según lo que esté disponible
+            const precioDc = product.priceDc || product.salePrice || '';
+            const precioMl = product.priceMl || '';
+            
+            document.getElementById('priceDc').value = precioDc;
+            document.getElementById('precioDc').value = precioDc;
+            document.getElementById('priceMl').value = precioMl;
+            document.getElementById('precioMl').value = precioMl;
+            
+            // Actualizar los campos de precios en Bs
+            const exchangeRate = product.bcvRate || parseFloat(document.getElementById('exchangeRate').value) || bcvRate;
+            document.getElementById('exchangeRate').value = exchangeRate.toFixed(4);
+            
+            // Calcular y mostrar precios en Bs
+            const priceDc = parseFloat(product.priceDc || product.salePrice || 0);
+            const priceMl = parseFloat(product.priceMl || 0);
+            const purchasePrice = parseFloat(product.purchasePrice || 0);
+            
+            document.getElementById('purchasePriceBs').value = formatNumber(purchasePrice * exchangeRate, 4);
+            document.getElementById('priceDcBs').value = formatNumber(priceDc * exchangeRate, 4);
+            document.getElementById('priceMlBs').value = formatNumber(priceMl * exchangeRate, 4);
+            document.getElementById('stock').value = product.stock || 0;
+            document.getElementById('minStock').value = product.minStock || 0;
+            document.getElementById('location').value = product.location || '';
+            document.getElementById('supplier').value = product.supplier || '';
+            if (product.status) {
+                document.querySelector(`input[name="status"][value="${product.status}"]`).checked = true;
+            } else {
+                document.querySelector('input[name="status"][value="active"]').checked = true;
+            }
+            document.getElementById('notes').value = product.notes || '';
+            if (product.image) {
+                document.getElementById('imagePreview').src = product.image;
+            }
+
+            // Mostrar el modal
+            const modal = document.getElementById('addProductModal');
+            const modalTitle = modal.querySelector('#modal-title');
+            const modalFooter = modal.querySelector('.bg-gray-50');
+
+            // Configurar el título del modal
+            modalTitle.textContent = editMode ? 'Editar Producto' : 'Ver Producto';
+
+            // Configurar los botones del pie del modal
+            modalFooter.innerHTML = `
+                <button type="button" onclick="closeAddProductModal()" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cerrar
+                </button>
+                ${editMode ? `
+                <button type="submit" form="addProductForm" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    Guardar Cambios
+                </button>
+                ` : ''}
+            `;
+
+            // Mostrar el modal
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        // Agregar o actualizar un producto
+        function addProduct(event) {
+            if (event) {
+                event.preventDefault();
+            }
+            
+            // Mostrar spinner y deshabilitar botones
+            const saveBtn = document.getElementById('saveProductBtn') || {};
+            const formSaveBtn = document.querySelector('#addProductForm button[type="submit"]');
+            const spinner = document.getElementById('saveSpinner');
+            
+            // Actualizar estado de los botones
+            const updateButtonState = (saving) => {
+                const buttons = [saveBtn, formSaveBtn].filter(btn => btn);
+                buttons.forEach(btn => {
+                    btn.disabled = saving;
+                    if (saving) {
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Guardando...';
+                    } else {
+                        if (btn === saveBtn) {
+                            btn.innerHTML = '<i class="fas fa-save mr-2"></i> Guardar Producto';
+                        } else {
+                            btn.innerHTML = '<i class="fas fa-save mr-2"></i> Guardar Cambios';
+                        }
+                    }
+                });
+                if (spinner) {
+                    spinner.classList.toggle('hidden', !saving);
+                }
+            };
+            
+            // Iniciar estado de guardado
+            updateButtonState(true);
+            
+            // Pequeño retraso para mostrar la animación
+            setTimeout(() => {
+                try {
+                    // Obtener los valores básicos del formulario
+                    const productName = document.getElementById('productName')?.value.trim();
+                    const productCode = document.getElementById('productCode')?.value.trim();
+                    const internalCode = document.getElementById('internalCode')?.value.trim() || '';
+                    
+                    // Función para obtener y limpiar valores numéricos
+                    const getNumericValue = (id) => {
+                        const element = document.getElementById(id);
+                        if (!element) return 0;
+                        const value = element.value.trim().replace(',', '.');
+                        return parseFloat(value) || 0;
+                    };
+                    
+                    // Obtener y formatear precios
+                    const priceDc = parseFloat(document.getElementById('precioDc').value) || 0;
+                    const priceMl = parseFloat(document.getElementById('precioMl').value) || 0;
+                    const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+                    
+                    console.log('Precios obtenidos del formulario:', { priceDc, priceMl, purchasePrice });
+                    
+                    console.log('Precios capturados:', { priceDc, priceMl, purchasePrice });
+                    
+                    // Obtener otros valores del formulario
+                    const barcode = document.getElementById('barcode')?.value.trim() || '';
+                    const category = document.getElementById('category')?.value || '';
+                    const brand = document.getElementById('brand')?.value || '';
+                    const model = document.getElementById('model')?.value || '';
+                    const description = document.getElementById('description')?.value.trim() || '';
+                    const origin = document.getElementById('origin')?.value || '';
+                    const condition = document.getElementById('condition')?.value || 'nuevo';
+                    const weight = getNumericValue('weight');
+                    const dimensions = document.getElementById('dimensions')?.value.trim() || '';
+                    const color = document.getElementById('color')?.value.trim() || '';
+                    const material = document.getElementById('material')?.value.trim() || '';
+                    const warranty = document.getElementById('warranty')?.value.trim() || '';
+                    const supplier = document.getElementById('supplier')?.value.trim() || '';
+                    const stock = parseInt(document.getElementById('stock')?.value) || 0;
+                    const minStock = parseInt(document.getElementById('minStock')?.value) || 0;
+                    const location = document.getElementById('location')?.value || 'Almacén Principal';
+                    const notes = document.getElementById('notes')?.value.trim() || '';
+                    const imagePreview = document.getElementById('productImagePreview');
+                    const image = imagePreview?.src || 'https://via.placeholder.com/150';
+                    
+                    console.log('Datos del formulario:', {
+                        productName,
+                        productCode,
+                        purchasePrice,
+                        stock,
+                        minStock,
+                        location,
+                        category,
+                        brand,
+                        model,
+                        description
+                    });
+                    
+                    // Obtener tasas de cambio
+                    const exchangeRate = parseFloat(document.getElementById('exchangeRate')?.value) || currentExchangeRate;
+                    
+                    // Obtener precios de venta
+                    const priceDcInput = document.getElementById('priceDc');
+                    const priceMlInput = document.getElementById('priceMl');
+                    
+                    // Calcular precios en Bs usando la tasa de cambio
+                    const priceDcBs = Math.round((priceDc * exchangeRate + Number.EPSILON) * 100) / 100;
+                    const priceMlBs = Math.round((priceMl * exchangeRate + Number.EPSILON) * 100) / 100;
+                    
+                    console.log('Precios finales:', {
+                        priceDc,
+                        priceMl,
+                        purchasePrice,
+                        priceDcBs,
+                        priceMlBs,
+                        exchangeRate
+                    });
+                    
+                    // Validar campos requeridos
+                    if (!productName || !productCode || !category) {
+                        throw new Error('Por favor complete todos los campos requeridos');
+                    }
+                    
+                    if (purchasePrice <= 0) {
+                        throw new Error('El precio de compra debe ser mayor a 0');
+                    }
+                    
+                    // Calcular márgenes
+                    const marginConfig = getMarginConfig();
+                    const marginDc = priceDc > 0 ? ((priceDc - purchasePrice) / purchasePrice) * 100 : 0;
+                    const marginMl = priceMl > 0 ? ((priceMl - purchasePrice) / purchasePrice) * 100 : 0;
+                    
+                    // Los precios ya están calculados arriba
+                    console.log('Precios calculados:', {
+                        priceDc,
+                        priceMl,
+                        priceDcBs: priceDc * exchangeRate,
+                        priceMlBs: priceMl * exchangeRate,
+                        exchangeRate
+                    });
+                    
+                    // Crear objeto de producto con todos los campos
+                    const product = {
+                        // Información básica
+                        id: currentProductId || Date.now().toString(),
+                        name: productName,
+                        code: productCode,
+                        internalCode: internalCode,
+                        barcode: barcode,
+                        
+                        // Categorización
+                        category: document.getElementById('category')?.value || '',
+                        brand: document.getElementById('brand')?.value || '',
+                        model: document.getElementById('model')?.value || '',
+                        marginPercentageDc: Number(marginDc.toFixed(2)),
+                        marginPercentageMl: Number(marginMl.toFixed(2)),
+                        
+                        // Stock e inventario
+                        stock: parseInt(stock) || 0,
+                        minStock: parseInt(minStock) || 0,
+                        location: location,
+                        
+                        // Descripción y características
+                        description: description,
+                        origin: origin,
+                        condition: condition,
+                        weight: weight ? parseFloat(weight) : 0,
+                        dimensions: dimensions,
+                        color: color,
+                        material: material,
+                        warranty: warranty,
+                        
+                        // Proveedor
+                        supplier: supplier,
+                        
+                        // Tasa de cambio
+                        bcvRate: Number(exchangeRate.toFixed(2)),
+                        purchasePrice: Number(purchasePrice.toFixed(2)),
+                        purchasePriceBs: Number((purchasePrice * exchangeRate).toFixed(2)),
+                        
+                        // Precios
+                        priceDc: Number(priceDc.toFixed(2)),
+                        priceMl: Number(priceMl.toFixed(2)),
+                        priceMlBs: Number(priceMlBs.toFixed(2)),
+                        
+                        // Compatibilidad
+                        salePrice: Number(priceDc.toFixed(2)),
+                        salePriceBs: Number(priceDcBs.toFixed(2)),
+                        
+                        // Metadatos
+                        notes: notes,
+                        image: image,
+                        lastUpdated: new Date().toISOString(),
+                        createdAt: currentProductId ? undefined : new Date().toISOString()
+                    };
+                    
+                    console.log('Producto a guardar (objeto completo):', JSON.parse(JSON.stringify(product)));
+                    
+                    console.log('Producto a guardar:', JSON.stringify(product, null, 2));
+                    
+                    console.log('Producto a guardar:', JSON.stringify(product, null, 2));
+                    
+                    // Cargar productos existentes
+                    let savedProducts = [];
+                    try {
+                        const savedData = localStorage.getItem('products');
+                        console.log('Datos guardados en localStorage:', savedData);
+                        if (savedData) {
+                            savedProducts = JSON.parse(savedData);
+                            console.log('Productos cargados desde localStorage:', savedProducts);
+                            if (!Array.isArray(savedProducts)) {
+                                console.warn('Los datos guardados no son un array, inicializando array vacío');
+                                savedProducts = [];
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error al cargar productos:', error);
+                        savedProducts = [];
+                    }
+                    
+                    // Si estamos editando, actualizamos el producto existente
+                    if (currentProductId) {
+                        const index = savedProducts.findIndex(p => p.id === currentProductId);
+                        if (index !== -1) {
+                            savedProducts[index] = product;
+                            showNotification('✅ Producto actualizado correctamente', 'success');
+                        }
+                    } else {
+                        // Si es un producto nuevo, lo agregamos al array
+                        savedProducts.push(product);
+                        showNotification('✅ Producto guardado exitosamente', 'success');
+                    }
+                    
+                    // Actualizar las variables globales
+                    allProducts = [...savedProducts];
+                    products = [...savedProducts];
+                    
+                    // Guardar los cambios usando saveProducts que maneja todo el proceso
+                    const saveSuccess = saveProducts();
+                    
+                    if (saveSuccess) {
+                        // Mostrar notificación de éxito
+                        showNotification(
+                            currentProductId ? '✅ Producto actualizado correctamente' : '✅ Producto guardado exitosamente', 
+                            'success'
+                        );
+                        
+                        // Cerrar el modal y limpiar
+                        closeAddProductModal();
+                        const form = document.getElementById('addProductForm');
+                        if (form) form.reset();
+                        
+                        // Resetear el modo de edición
+                        isEditMode = false;
+                        currentProductId = null;
+                        
+                        // Actualizar la interfaz
+                        loadProducts();
+                        updateInventoryStats();
+                    } else {
+                        throw new Error('Error al guardar los cambios. Por favor, inténtalo de nuevo.');
+                    }
+                    
+                    // Cerrar el modal y limpiar
+                    closeAddProductModal();
+                    const form = document.getElementById('addProductForm');
+                    if (form) form.reset();
+                    
+                    // Resetear el modo de edición
+                    isEditMode = false;
+                    currentProductId = null;
+                    
+                } catch (error) {
+                    // Mostrar error
+                    showNotification(`❌ ${error.message}`, 'error');
+                    console.error('Error al guardar el producto:', error);
+                } finally {
+                    // Restaurar estado de los botones
+                    updateButtonState(false);
+                }
+            }, 500); // Pequeño retraso para mejor experiencia de usuario
+            
+            return false;
+        }
+
+        // Manejar la subida de imágenes
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validar tamaño máximo (5MB)
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
+                showNotification('La imagen es demasiado grande. El tamaño máximo permitido es 5MB.', 'error');
+                return;
+            }
+            
+            // Validar tipo de archivo
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            if (!validTypes.includes(file.type)) {
+                showNotification('Por favor, sube un archivo de imagen válido (JPEG, PNG o GIF).', 'error');
+                return;
+            }
+            
+            // Mostrar vista previa
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('productImagePreview');
+                const defaultPreview = document.getElementById('defaultImagePreview');
+                
+                if (preview) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                if (defaultPreview) {
+                    defaultPreview.style.display = 'none';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Función para actualizar las estadísticas
+        function updateInventoryStats() {
+            // Contar productos por estado
+            const stats = {
+                total: products.length,
+                inStock: products.filter(p => p.status === 'in-stock').length,
+                lowStock: products.filter(p => p.status === 'low-stock').length,
+                outOfStock: products.filter(p => p.status === 'out-of-stock').length
+            };
+            
+            // Actualizar total de productos
+            document.getElementById('total-products').textContent = stats.total.toLocaleString();
+            
+            // Actualizar productos en stock
+            document.getElementById('in-stock-count').textContent = stats.inStock.toLocaleString();
+            
+            // Actualizar productos con poco stock
+            document.getElementById('low-stock-count').textContent = stats.lowStock.toLocaleString();
+            
+            // Actualizar productos agotados
+            document.getElementById('out-of-stock-count').textContent = stats.outOfStock.toLocaleString();
+            
+            // Calcular tendencias (ejemplo estático - en producción usar datos históricos)
+            const updateTrend = (elementId, current, previous = 0) => {
+                const change = current - previous;
+                const element = document.getElementById(elementId);
+                if (!element) return;
+                
+                if (elementId.includes('trend')) {
+                    const isPercentage = elementId.includes('trend') && !elementId.includes('low-stock');
+                    const isPositive = change >= 0;
+                    const symbol = isPositive ? '+' : '';
+                    const value = isPercentage 
+                        ? Math.round((change / (previous || 1)) * 100) 
+                        : change;
+                    const suffix = isPercentage ? '%' : '';
+                    
+                    element.textContent = `${symbol}${value}${suffix} desde ayer`;
+                    element.className = `text-${isPositive ? 'green' : 'red'}-500 text-sm`;
+                }
+            };
+            
+            // Actualizar tendencias (usando 0 como valor anterior por defecto)
+            updateTrend('total-products-trend', stats.total, 0);
+            updateTrend('in-stock-trend', stats.inStock, 0);
+            updateTrend('low-stock-trend', stats.lowStock, 0);
+            updateTrend('out-of-stock-trend', stats.outOfStock, 0);
+        }
+
+        // Función para eliminar un producto
+        function deleteProduct(productId) {
+            if (confirm('¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.')) {
+                try {
+                    // Filtrar el producto a eliminar de ambos arrays
+                    products = products.filter(product => product.id !== productId);
+                    allProducts = allProducts.filter(product => product.id !== productId);
+                    
+                    // Guardar los cambios usando saveProducts que maneja la persistencia
+                    const saveSuccess = saveProducts();
+                    
+                    if (saveSuccess) {
+                        // Actualizar la interfaz
+                        loadProducts();
+                        updateInventoryStats();
+                        
+                        // Mostrar notificación
+                        showNotification('✅ Producto eliminado correctamente', 'success');
+                    } else {
+                        throw new Error('No se pudo guardar los cambios en el almacenamiento local');
+                    }
+                } catch (error) {
+                    console.error('Error al eliminar el producto:', error);
+                    showNotification('❌ Error al eliminar el producto: ' + (error.message || 'Error desconocido'), 'error');
+                    
+                    // Intentar recuperar el estado anterior
+                    try {
+                        loadAllProducts();
+                    } catch (recoveryError) {
+                        console.error('Error al recuperar los productos:', recoveryError);
+                    }
+                }
+            }
+        }
+
+        // Obtener la configuración de márgenes de forma segura
+        function getMarginConfig() {
+            const getValue = (id, defaultValue) => {
+                const element = document.getElementById(id);
+                return element ? parseFloat(element.value) || defaultValue : defaultValue;
+            };
+            
+            return {
+                min: getValue('minMargin', 20),
+                recommended: getValue('recommendedMargin', 35),
+                max: getValue('maxMargin', 50)
+            };
+        }
+
+        // Actualizar precios basados en la configuración de márgenes
+        function updateMarginConfig() {
+            const config = getMarginConfig();
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+            
+            // Calcular y establecer el precio mínimo (30% sobre el precio de compra)
+            const minPrice = purchasePrice * 1.3; // 30% de margen mínimo
+            document.getElementById('minPrice').value = minPrice.toFixed(2);
+            
+            // Validar que los márgenes estén en orden: min < recommended < max
+            if (config.min >= config.recommended) {
+                console.warn('El margen mínimo no puede ser mayor o igual al margen recomendado');
+                // Ajustar automáticamente el margen recomendado
+                document.getElementById('recommendedMargin').value = (parseFloat(config.min) + 1).toFixed(1);
+                return;
+            }
+            
+            if (config.recommended >= config.max) {
+                console.warn('El margen recomendado no puede ser mayor o igual al margen máximo');
+                // Ajustar automáticamente el margen máximo
+                document.getElementById('maxMargin').value = (parseFloat(config.recommended) + 1).toFixed(1);
+                return;
+            }
+            
+            // Actualizar barras de progreso de márgenes
+            document.getElementById('minMarginBar').style.width = `${Math.min(100, config.min)}%`;
+            document.getElementById('maxMarginBar').style.width = `${Math.min(100, config.max)}%`;
+            
+            // Actualizar el rango de márgenes
+            const marginRangeBar = document.getElementById('marginRangeBar');
+            if (marginRangeBar) {
+                const minPos = config.min;
+                const maxPos = Math.min(100, config.max);
+                marginRangeBar.style.width = `${maxPos}%`;
+                marginRangeBar.style.background = `linear-gradient(90deg, #4ade80 0%, #facc15 ${minPos}%, #f87171 100%)`;
+            }
+            
+            // Calcular precios (el recomendado será igual al máximo)
+            const maxPrice = purchasePrice * (1 + config.max / 100);
+            const recommendedPrice = maxPrice; // El precio recomendado es igual al precio máximo
+            
+            // Si el precio de compra es mayor a 0, actualizar precios
+            if (purchasePrice > 0) {
+                // El precio mínimo ya está establecido al 30% al inicio de la función
+                
+                // Establecer precios de venta (recomendado y máximo son iguales)
+                document.getElementById('recommendedPrice').value = maxPrice.toFixed(2);
+                // Establecer precio de venta con margen máximo
+                document.getElementById('salePrice').value = maxPrice.toFixed(2);
+                
+                // Obtener la tasa de cambio actual
+                const exchangeRate = currentExchangeRate;
+                
+                // Calcular precios en Bolívares
+                const purchasePriceBs = purchasePrice * exchangeRate;
+                const recommendedPriceBs = recommendedPrice * exchangeRate;
+                const maxPriceBs = maxPrice * exchangeRate;
+                
+                // Actualizar precios en Bs
+                document.getElementById('purchasePriceBs').value = formatNumber(purchasePriceBs, 2);
+                document.getElementById('salePriceBs').value = formatNumber(maxPriceBs, 2);
+                
+                // Actualizar información de tasas
+                document.getElementById('purchasePriceBsRate').textContent = `1 USD = ${formatNumber(exchangeRate, 2)} Bs`;
+                document.getElementById('salePriceBsRate').textContent = `1 USD = ${formatNumber(exchangeRate, 2)} Bs`;
+                
+                // Calcular y mostrar margen de ganancia
+                const profit = maxPrice - purchasePrice;
+                const profitPercentage = (profit / purchasePrice) * 100;
+                
+                // Actualizar visualización del margen
+                const marginBar = document.getElementById('marginBar');
+                if (marginBar) {
+                    marginBar.style.width = `${Math.min(100, Math.max(0, profitPercentage))}%`;
+                }
+                
+                // Actualizar información de ganancia
+                document.getElementById('profitMargin').textContent = `${formatNumber(profitPercentage, 1)}%`;
+                document.getElementById('profitAmount').textContent = `Bs ${formatNumber(profit * exchangeRate, 2)} de ganancia`;
+            }
+            
+            // Actualizar precios
+            updateBsPrices();
+            document.getElementById('recommendedPrice').value = recommendedPrice.toFixed(2);
+        }
+        
+        // Restablecer márgenes a los valores por defecto
+        function resetMargins() {
+            document.getElementById('minMargin').value = '20';
+            document.getElementById('recommendedMargin').value = '35';
+            document.getElementById('maxMargin').value = '50';
+            
+            // Actualizar precios si ya hay un precio de compra
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+            if (purchasePrice > 0) {
+                updateAllPrices();
+            }
+        }
+
+        // Actualizar precios en BS según la tasa BCV y calcular márgenes
+        function updateBsPrices() {
+            const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 0;
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+            const salePrice = parseFloat(document.getElementById('salePrice').value) || 0;
+            
+            // Actualizar el display de la tasa de cambio
+            const exchangeRateDisplay = document.getElementById('exchangeRateDisplay');
+            if (exchangeRateDisplay) {
+                exchangeRateDisplay.textContent = exchangeRate.toFixed(4);
+            }
+            
+            // Actualizar precios en Bs
+            const purchasePriceBs = purchasePrice * exchangeRate;
+            document.getElementById('purchasePriceBs').value = formatNumber(purchasePriceBs);
+            
+            // Actualizar precio ML en Bs
+            const salePriceBs = salePrice * exchangeRate;
+            document.getElementById('salePriceBs').value = formatNumber(salePriceBs);
+            
+            // Actualizar campo de precio recomendado
+            const recommendedPriceElement = document.getElementById('recommendedPrice');
+            if (recommendedPriceElement) {
+                const margins = getMarginConfig();
+                const recommendedPrice = purchasePrice * (1 + margins.recommended / 100);
+                recommendedPriceElement.value = recommendedPrice.toFixed(2);
+                
+                // Actualizar estilos según el margen
+                if (purchasePrice > 0) {
+                    const margin = ((salePrice / purchasePrice) - 1) * 100;
+                    
+                    if (margin < margins.min) {
+                        document.getElementById('salePrice').classList.add('border-red-500', 'bg-red-50');
+                        document.getElementById('salePrice').classList.remove('border-yellow-400', 'bg-yellow-50');
+                        recommendedPriceElement.classList.add('border-red-500', 'bg-red-50');
+                    } else if (margin < margins.recommended) {
+                        document.getElementById('salePrice').classList.remove('border-red-500', 'bg-red-50');
+                        document.getElementById('salePrice').classList.add('border-yellow-400', 'bg-yellow-50');
+                        recommendedPriceElement.classList.add('border-yellow-400', 'bg-yellow-50');
+                    } else {
+                        document.getElementById('salePrice').classList.remove('border-yellow-400', 'bg-yellow-50', 'border-red-500', 'bg-red-50');
+                        recommendedPriceElement.classList.remove('border-yellow-400', 'bg-yellow-50', 'border-red-500', 'bg-red-50');
+                    }
+                }
+            }
+            
+            // Establecer automáticamente DC como precio mínimo y ML como precio máximo
+            if (purchasePrice > 0) {
+                const margins = getMarginConfig();
+                const minPriceRecommended = purchasePrice * (1 + margins.min / 100);
+                
+                // Actualizar DC (precio mínimo)
+                document.getElementById('minPrice').value = minPriceRecommended.toFixed(2);
+                minPrice = minPriceRecommended;
+                
+                // Actualizar ML (precio máximo)
+                document.getElementById('salePrice').value = maxPriceRecommended.toFixed(2);
+                salePrice = maxPriceRecommended;
+            }
+            
+            // Calcular márgenes si los precios están completos
+            if (purchasePrice > 0 && minPrice > 0 && salePrice > 0) {
+                const marginDc = minPrice - purchasePrice;
+                const marginMl = salePrice - purchasePrice;
+                const marginPercentageDc = purchasePrice > 0 ? ((minPrice - purchasePrice) / purchasePrice * 100).toFixed(2) : 0;
+                const marginPercentageMl = purchasePrice > 0 ? ((salePrice - purchasePrice) / purchasePrice * 100).toFixed(2) : 0;
+                
+                // Actualizar la interfaz con los márgenes calculados
+                const marginsInfo = document.getElementById('marginsInfo');
+                if (marginsInfo) {
+                    let statusMessage = '';
+                    let statusClass = '';
+                    
+                    if (salePrice < minPriceRecommended) {
+                        statusMessage = `Precio por debajo del mínimo (${margins.min}%)`;
+                        statusClass = 'text-red-600';
+                    } else if (salePrice > maxPriceRecommended) {
+                        statusMessage = `Precio por encima del máximo (${margins.max}%)`;
+                        statusClass = 'text-green-600';
+                    } else if (salePrice < recommendedPrice) {
+                        statusMessage = `Precio por debajo del recomendado (${margins.recommended}%)`;
+                        statusClass = 'text-yellow-600';
+                    } else {
+                        statusMessage = `Precio dentro del rango óptimo (${margins.recommended}-${margins.max}%)`;
+                        statusClass = 'text-green-600';
+                    }
+                    
+                    marginsInfo.innerHTML = `
+                        <div class="text-xs text-gray-600 mt-2">
+                            <div class="grid grid-cols-2 gap-1">
+                                <div>Mínimo (${margins.min}%):</div>
+                                <div class="font-medium">$${minPriceRecommended.toFixed(2)}</div>
+                                
+                                <div>Recomendado (${margins.recommended}%):</div>
+                                <div class="font-medium text-blue-600">$${recommendedPrice.toFixed(2)}</div>
+                                
+                                <div>Máximo (${margins.max}%):</div>
+                                <div class="font-medium">$${maxPriceRecommended.toFixed(2)}</div>
+                            </div>
+                            
+                            <div class="mt-2 pt-2 border-t border-gray-200">
+                                <div class="font-medium">Margen actual: ${marginPercentageMl}% ($${marginMl.toFixed(2)})</div>
+                                <div class="${statusClass} font-medium">${statusMessage}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }    
+        }
+        
+        // Obtener tasa BCV desde una API (ejemplo)
+        async function fetchBcvRate() {
+            try {
+                // Mostrar indicador de carga
+                const rateInput = document.getElementById('exchangeRate');
+                rateInput.disabled = true;
+                rateInput.classList.add('opacity-50');
+                
+                // En un caso real, aquí iría una llamada a una API del BCV
+                // Por ahora, simulamos una respuesta después de 1 segundo
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Actualizar el valor (en un caso real, vendría de la API)
+                bcvRate = 36.1234; // Este valor vendría de la API
+                document.getElementById('exchangeRate').value = bcvRate.toFixed(4);
+                updateBsPrices();
+                
+                // Mostrar notificación
+                showNotification('Tasa BCV actualizada correctamente', 'success');
+            } catch (error) {
+                console.error('Error al obtener la tasa BCV:', error);
+                showNotification('Error al obtener la tasa BCV. Usando valor por defecto.', 'error');
+            } finally {
+                const rateInput = document.getElementById('exchangeRate');
+                rateInput.disabled = false;
+                rateInput.classList.remove('opacity-50');
+            }
+        }
+        
+        // Función para verificar datos en localStorage
+        function checkStoredProducts() {
+            try {
+                const savedData = localStorage.getItem('products');
+                console.log('=== DATOS EN LOCALSTORAGE ===');
+                console.log('Datos guardados:', savedData);
+                if (savedData) {
+                    const products = JSON.parse(savedData);
+                    console.log('Productos guardados:', products);
+                    if (Array.isArray(products)) {
+                        console.log('Número de productos:', products.length);
+                        products.forEach((p, i) => {
+                            console.log(`Producto ${i + 1}:`, {
+                                id: p.id,
+                                name: p.name,
+                                priceDc: p.priceDc,
+                                priceMl: p.priceMl,
+                                typeOfPriceDc: typeof p.priceDc,
+                                typeOfPriceMl: typeof p.priceMl
+                            });
+                        });
+                    }
+                } else {
+                    console.log('No hay productos guardados en localStorage');
+                }
+                console.log('===========================');
+            } catch (error) {
+                console.error('Error al verificar localStorage:', error);
+            }
+        }
+
+        // Función para inicializar la aplicación
+        function initializeApp() {
+            console.log('Inicializando aplicación...');
+            
+            // Verificar si hay datos en localStorage antes de cargar
+            console.log('Contenido actual de localStorage:', JSON.stringify(localStorage, null, 2));
+            
+            // 1. Cargar productos primero
+            console.log('Iniciando carga de productos...');
+            const productsLoaded = loadAllProducts();
+            
+            if (!productsLoaded) {
+                console.error('No se pudieron cargar los productos');
+                showNotification('Error al cargar los productos. Intenta recargar la página.', 'error');
+                return;
+            }
+            
+            console.log('Productos después de loadAllProducts:', {
+                allProductsLength: window.allProducts ? window.allProducts.length : 'no definido',
+                productsLength: window.products ? window.products.length : 'no definido'
+            });
+            
+            // 2. Inicializar la interfaz
+            try {
+                // Configurar el buscador
+                const searchInput = document.getElementById('searchProduct');
+                if (searchInput) {
+                    searchInput.addEventListener('input', function(e) {
+                        console.log('Buscando:', e.target.value);
+                        filterProducts(e.target.value);
+                    });
+                    console.log('Buscador inicializado correctamente');
+                }
+                
+                // Configurar el botón de guardar producto
+                const saveProductBtn = document.getElementById('saveProductBtn');
+                if (saveProductBtn) {
+                    saveProductBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        addProduct(e);
+                    });
+                }
+                
+                // Inicializar tasa BCV
+                const exchangeRateInput = document.getElementById('exchangeRate');
+                if (exchangeRateInput) {
+                    exchangeRateInput.value = bcvRate.toFixed(4);
+                    updateBsPrices();
+                }
+                
+                // Mostrar notificación de éxito
+                if (allProducts && allProducts.length > 0) {
+                    console.log(`✅ ${allProducts.length} productos cargados correctamente`);
+                    showNotification(`Sistema listo. ${allProducts.length} productos cargados.`, 'success');
+                } else {
+                    console.log('⚠️ No se encontraron productos');
+                    showNotification('Sistema listo. No hay productos en el inventario.', 'info');
+                }
+                
+                console.log('✅ Aplicación inicializada correctamente');
+                
+            } catch (error) {
+                console.error('❌ Error al inicializar la aplicación:', error);
+                showNotification('Error al inicializar la aplicación. Por favor, recarga la página.', 'error');
+            }
+        }
+        
+        // Inicializar cuando el DOM esté completamente cargado
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            // Si el DOM ya está listo, inicializar de inmediato
+            initializeApp();
+        }
+
+        // Configurar eventos
+        setupMobileMenu();
+        setupTooltips();
+
+        // Función para verificar productos en consola
+        function checkProducts() {
+            console.group('=== Verificación de Productos ===');
+            console.log('Total de productos cargados:', allProducts.length);
+            console.log('Productos en la página actual:', products.length);
+            console.log('Contenido de allProducts:', JSON.parse(JSON.stringify(allProducts)));
+            console.log('Contenido de products:', JSON.parse(JSON.stringify(products)));
+            
+            // Verificar si hay elementos en la tabla
+            const tableRows = document.querySelectorAll('#products-table-body tr');
+            console.log('Filas en la tabla:', tableRows.length);
+            
+            // Verificar localStorage
+            const storedProducts = localStorage.getItem('products');
+            console.log('Productos en localStorage:', storedProducts ? JSON.parse(storedProducts) : 'No hay productos');
+            
+            console.groupEnd();
+        }
+        
+        // Hacer la función accesible desde la consola del navegador
+        window.checkProducts = checkProducts;
+        
+        // Mostrar notificación
+        function showNotification(message, type = 'info') {
+            // Implementación básica - puedes reemplazar con tu sistema de notificaciones preferido
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            
+            // Opcional: Mostrar un toast o alerta en la interfaz
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg text-white ${
+                type === 'error' ? 'bg-red-500' : 
+                type === 'success' ? 'bg-green-500' : 
+                'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Eliminar la notificación después de 3 segundos
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // Configurar menú móvil
+        function setupMobileMenu() {
+            const menuButton = document.querySelector('[data-menu-button]');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (menuButton && sidebar) {
+                menuButton.addEventListener('click', () => {
+                    sidebar.classList.toggle('-translate-x-full');
+                    sidebar.classList.toggle('translate-x-0');
+                });
+            }
+        }
+
+        // Configurar tooltips
+        function setupTooltips() {
+            const tooltips = document.querySelectorAll('[data-tooltip]');
+            tooltips.forEach(tooltip => {
+                const tooltipText = tooltip.getAttribute('data-tooltip');
+                const tooltipElement = document.createElement('div');
+                tooltipElement.className = 'invisible absolute z-50 w-max max-w-xs px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 transition-opacity duration-200';
+                tooltipElement.textContent = tooltipText;
+                tooltip.appendChild(tooltipElement);
+
+                tooltip.addEventListener('mouseenter', () => {
+                    tooltipElement.classList.remove('invisible', 'opacity-0');
+                    tooltipElement.classList.add('visible', 'opacity-100');
+                });
+
+                tooltip.addEventListener('mouseleave', () => {
+                    tooltipElement.classList.remove('visible', 'opacity-100');
+                    tooltipElement.classList.add('invisible', 'opacity-0');
+                });
+            });
+        }
+
+        // Función para abrir el selector de productos
+        function abrirSelectorProductos() {
+            console.log('Abriendo selector de productos...');
+            // Mostrar el modal de selección de productos
+            const modal = document.getElementById('productSelectorModal');
+            modal.classList.remove('hidden');
+            
+            // Cargar productos en el selector
+            cargarProductosEnSelector();
+            
+            // Enfocar el campo de búsqueda
+            setTimeout(() => {
+                const searchInput = document.getElementById('searchProductSelector');
+                if (searchInput) searchInput.focus();
+            }, 100);
+        }
+
+        // Función para cerrar el selector de productos
+        function cerrarSelectorProductos() {
+            document.getElementById('productSelectorModal').classList.add('hidden');
+        }
+
+        // Función para seleccionar un producto del selector
+        function seleccionarProducto(productId) {
+            console.log('Producto seleccionado:', productId);
+            cerrarSelectorProductos();
+            
+            // Buscar el producto por ID
+            const producto = window.products.find(p => p.id === productId);
+            if (producto) {
+                viewProduct(productId, true);
+            } else {
+                console.error('Producto no encontrado:', productId);
+                showNotification('No se pudo encontrar el producto seleccionado', 'error');
+            }
+        }
+
+        // Cerrar el modal al hacer clic fuera del contenido
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('productSelectorModal');
+            const modalContent = document.querySelector('.product-selector-content');
+            
+            if (event.target === modal) {
+                cerrarSelectorProductos();
+            }
+        });
+    </script>
+
+    <!-- Modal de Selector de Productos -->
+    <div id="productSelectorModal" class="fixed z-50 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen p-4 text-center sm:block sm:p-0">
+            <!-- Fondo oscuro -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="cerrarSelectorProductos()"></div>
+            
+            <!-- Contenido del modal -->
+            <div class="product-selector-content inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-4xl sm:w-full">
+                <!-- Encabezado -->
+                <div class="bg-indigo-600 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-semibold text-white">
+                            Seleccionar Producto
+                        </h3>
+                        <button type="button" onclick="cerrarSelectorProductos()" class="text-white hover:text-gray-200 focus:outline-none">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cuerpo -->
+                <div class="p-6">
+                    <div class="mb-4">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" id="searchProductSelector" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" placeholder="Buscar productos...">
+                        </div>
+                    </div>
+
+                    <!-- Lista de productos -->
+                    <div class="overflow-y-auto max-h-96">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marca</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                                    <th class="px-4 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="product-selector-body">
+                                <!-- Los productos se cargarán aquí dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pie de página -->
+                <div class="bg-gray-50 px-6 py-4 flex justify-end space-x-3 border-t border-gray-200">
+                    <button type="button" onclick="cerrarSelectorProductos()" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Cancelar
+                    </button>
+                    <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i class="fas fa-plus mr-2"></i> Nuevo Producto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Función para cargar los productos en el selector
+        function cargarProductosEnSelector() {
+            const tbody = document.getElementById('product-selector-body');
+            tbody.innerHTML = ''; // Limpiar contenido existente
+            
+            // Cargar productos desde localStorage si no están en window.products
+            if (!window.products || window.products.length === 0) {
+                loadAllProducts();
+            }
+            
+            const productos = window.products || [];
+            
+            if (productos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                            No hay productos disponibles. Crea tu primer producto.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Ordenar productos por nombre
+            const productosOrdenados = [...productos].sort((a, b) => {
+                const nombreA = (a.nombre || '').toLowerCase();
+                const nombreB = (b.nombre || '').toLowerCase();
+                return nombreA.localeCompare(nombreB);
+            });
+
+            // Agregar cada producto a la tabla
+            productosOrdenados.forEach(producto => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50';
+                tr.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${producto.codigo || 'N/A'}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${producto.nombre || 'Sin nombre'}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500">${producto.marca || 'N/A'}</td>
+                    <td class="px-4 py-3 text-right text-sm text-gray-900">$${producto.precioDC ? parseFloat(producto.precioDC).toFixed(2) : '0.00'}</td>
+                    <td class="px-4 py-3 text-right text-sm ${(producto.existencia || 0) > 0 ? 'text-green-600' : 'text-red-600'}">
+                        ${producto.existencia || 0} ${(producto.existencia || 0) === 1 ? 'unidad' : 'unidades'}
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-medium">
+                        <button onclick="seleccionarProducto('${producto.id}')" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Seleccionar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Configurar la búsqueda de productos
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchProductSelector');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase().trim();
+                    const rows = document.querySelectorAll('#product-selector-body tr');
+                    
+                    if (searchTerm === '') {
+                        rows.forEach(row => row.style.display = '');
+                        return;
+                    }
+                    
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        const cells = row.getElementsByTagName('td');
+                        let found = false;
+                        
+                        // Buscar en las primeras 3 celdas (código, nombre, marca)
+                        for (let i = 0; i < 3 && i < cells.length; i++) {
+                            if (cells[i].textContent.toLowerCase().includes(searchTerm)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        
+                        row.style.display = found ? '' : 'none';
+                    });
+                });
+                
+                // Permitir presionar Escape para limpiar la búsqueda
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        this.value = '';
+                        this.dispatchEvent(new Event('input'));
+                    }
+                });
+            }
+            
+            // Configurar el botón de nuevo producto en el selector
+            const btnNuevoProducto = document.querySelector('#productSelectorModal button[type="button"]:last-child');
+            if (btnNuevoProducto) {
+                btnNuevoProducto.addEventListener('click', function() {
+                    cerrarSelectorProductos();
+                    showAddProductModal();
+                });
+            }
+        });
+    </script>
+    <!-- Firebase wiring -->
+    <script type="module">
+      import { db, auth, saveExchangeRate } from './lib/firebase.js';
+      import {
+        collection, addDoc, getDocs, onSnapshot, query, orderBy, doc, deleteDoc, serverTimestamp
+      } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+      window.$db = db; window.$auth = auth; window.saveExchangeRate = saveExchangeRate;
+      window.fs = { collection, addDoc, getDocs, onSnapshot, query, orderBy, doc, deleteDoc, serverTimestamp };
+    </script>
+    <!-- Script de gestión de inventario -->
+    <script src="js/inventario.js"></script>
+</body>
+</html>

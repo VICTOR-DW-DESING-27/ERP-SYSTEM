@@ -1,0 +1,2414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - ERP System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Form field styling */
+        .form-group {
+            margin-bottom: 1.25rem;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .form-group:focus-within label {
+            color: #4f46e5;
+            transform: translateY(-2px);
+        }
+        
+        .form-group.has-error {
+            animation: shake 0.5s;
+        }
+        
+        .form-group.has-error input,
+        .form-group.has-error select,
+        .form-group.has-error textarea {
+            border-color: #ef4444;
+            padding-right: 2.5rem;
+        }
+        
+        .form-group.success input,
+        .form-group.success select,
+        .form-group.success textarea {
+            border-color: #10b981;
+            padding-right: 2.5rem;
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: block;
+            min-height: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .success-message {
+            color: #10b981;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: block;
+            min-height: 1rem;
+        }
+        
+        .input-icon {
+            position: absolute;
+            top: 2.1rem;
+            right: 0.75rem;
+            pointer-events: none;
+        }
+        
+        .input-icon i {
+            font-size: 1rem;
+        }
+        
+        .input-icon.error {
+            color: #ef4444;
+        }
+        
+        .input-icon.success {
+            color: #10b981;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .form-input:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
+        }
+        
+        .form-input:disabled {
+            background-color: #f9fafb;
+            cursor: not-allowed;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+            transition: all 0.2s ease;
+        }
+        
+        .form-required:after {
+            content: ' *';
+            color: #ef4444;
+        }
+        /* Form field styling */
+        .form-group {
+            margin-bottom: 1.25rem;
+            transition: all 0.2s ease;
+            border-radius: 0.375rem;
+            padding: 0.25rem;
+        }
+        
+        .form-group:focus-within {
+            background-color: rgba(99, 102, 241, 0.05);
+        }
+        
+        .form-group.has-error {
+            border-left: 3px solid #ef4444;
+            padding-left: 0.5rem;
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: block;
+            min-height: 1rem;
+        }
+        
+        /* Button hover effects */
+        .btn-primary {
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        /* Input focus styles */
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+        }
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.3s;
+        }
+        .fade-enter, .fade-leave-to {
+            opacity: 0;
+        }
+        .status-badge {
+            @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+        }
+        .status-active {
+            @apply bg-green-100 text-green-800;
+        }
+        .status-inactive {
+            @apply bg-red-100 text-red-800;
+        }
+        .status-pending {
+            @apply bg-yellow-100 text-yellow-800;
+        }
+        .btn-primary {
+            @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+        }
+        .btn-secondary {
+            @apply inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+        }
+        .form-input {
+            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm;
+        }
+        .form-label {
+            @apply block text-sm font-medium text-gray-700;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-xl font-bold text-indigo-600">FastCars ERP</a>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+                    <a href="ventas.html" class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Ventas</a>
+                    <a href="compras.html" class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Compras</a>
+                    <a href="#" class="bg-gray-100 text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Clientes</a>
+                    <a href="inventario.html" class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Inventario</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Gestión de Clientes</h1>
+                    <p class="mt-1 text-sm text-gray-500">Administra la información de tus clientes y su historial</p>
+                </div>
+                <div class="mt-4 md:mt-0 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                    <div class="relative rounded-md shadow-sm w-full sm:w-64">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" id="search-clients" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md" placeholder="Buscar clientes...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
+                                <i class="fas fa-users text-white"></i>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">Total Clientes</dt>
+                                    <dd class="flex items-baseline">
+                                        <div class="text-2xl font-semibold text-gray-900" id="total-clients">0</div>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                                <i class="fas fa-user-check text-white"></i>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">Clientes Activos</dt>
+                                    <dd class="flex items-baseline">
+                                        <div class="text-2xl font-semibold text-gray-900" id="active-clients">0</div>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+                                <i class="fas fa-exclamation-triangle text-white"></i>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">Clientes Morosos</dt>
+                                    <dd class="flex items-baseline">
+                                        <div class="text-2xl font-semibold text-gray-900" id="overdue-clients">0</div>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                                <i class="fas fa-shopping-cart text-white"></i>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">Ventas del Mes</dt>
+                                    <dd class="flex items-baseline">
+                                        <div class="text-2xl font-semibold text-gray-900" id="month-sales">0</div>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clients Table -->
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
+                <div class="flex-1">
+                    <h3 class="text-lg font-medium text-gray-900">Lista de Clientes</h3>
+                    <p class="text-sm text-gray-500">Administra los registros de tus clientes</p>
+                </div>
+                <button id="nuevo-cliente-btn" class="btn-primary hover:scale-105 transition-transform duration-200 flex items-center justify-center w-full sm:w-auto" onclick="document.getElementById('client-modal').classList.remove('hidden')">
+                    <i class="fas fa-user-plus mr-2"></i> Nuevo Cliente
+                </button>
+            </div>
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-3 sm:px-6 border-b border-gray-200 bg-gray-50">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0 w-full">
+                        <div class="flex items-center space-x-2 w-full max-w-2xl">
+                            <div class="relative flex-1">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" id="search-input" class="form-input pl-10 w-full" placeholder="Buscar clientes...">
+                            </div>
+                            <select id="status-filter" class="form-input w-48 text-sm">
+                                <option value="">Todos los estados</option>
+                                <option value="active">Activos</option>
+                                <option value="inactive">Inactivos</option>
+                                <option value="overdue">Morosos</option>
+                            </select>
+                            <button class="btn-secondary text-sm whitespace-nowrap">
+                                <i class="fas fa-filter mr-1"></i> Filtrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Última Compra</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="clients-table-body">
+                            <!-- Client rows will be loaded here by JavaScript -->
+                            <tr>
+                                <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                    <div class="animate-pulse py-8">
+                                        <i class="fas fa-spinner fa-spin text-2xl text-indigo-600"></i>
+                                        <p class="mt-2 text-sm text-gray-500">Cargando clientes...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Mostrando <span class="font-medium" id="pagination-start">1</span> a <span class="font-medium" id="pagination-end">10</span> de <span class="font-medium" id="pagination-total">0</span> resultados
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Anterior</span>
+                                    <i class="fas fa-chevron-left h-5 w-5"></i>
+                                </a>
+                                <a href="#" aria-current="page" class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</a>
+                                <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">2</a>
+                                <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">3</a>
+                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Siguiente</span>
+                                    <i class="fas fa-chevron-right h-5 w-5"></i>
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Modal -->
+    <div id="client-modal" class="fixed z-50 inset-0 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity duration-300" 
+                 data-modal-backdrop 
+                 onclick="closeModal()"
+                 tabindex="-1"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-middle bg-white rounded-2xl px-6 pt-6 pb-6 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-8 border border-gray-100">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                    <h3 class="text-2xl font-bold text-gray-900 flex items-center" id="modal-title">
+                        <i class="fas fa-user-plus text-indigo-600 mr-3"></i>
+                        <span id="modal-title-text">Nuevo Cliente</span>
+                    </h3>
+                    <button type="button" class="text-gray-400 hover:text-gray-500 transition-colors duration-200" onclick="closeModal()">
+                        <i class="fas fa-times text-xl"></i>
+                        <span class="sr-only">Cerrar</span>
+                    </button>
+                </div>
+                <div class="mt-2">
+                    <form id="client-form" class="space-y-3" onsubmit="window.saveClient(event)" novalidate>
+                        <input type="hidden" id="client-id">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="form-group space-y-2">
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Tipo de Identificación <span class="text-red-500">*</span></label>
+                                        <div class="grid grid-cols-3 gap-1 bg-gray-50 p-2 rounded-md border border-gray-200">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="radio" name="tipo_identificacion" value="V" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300" checked>
+                                                <span class="ml-2 text-sm text-gray-700">V - Venezolano</span>
+                                            </label>
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="radio" name="tipo_identificacion" value="J" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                                <span class="ml-2 text-sm text-gray-700">J - Jurídico</span>
+                                            </label>
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="radio" name="tipo_identificacion" value="E" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                                <span class="ml-2 text-sm text-gray-700">E - Extranjero</span>
+                                            </label>
+                                        </div>
+                                        <div class="relative mt-2">
+                                            <div class="flex items-center w-full">
+                                                <span class="inline-flex items-center px-2 py-1.5 text-sm border border-r-0 border-gray-300 bg-gray-50 text-gray-500 font-medium rounded-l-md">
+                                                    <i class="fas fa-id-card mr-1 text-xs"></i>
+                                                    <span id="identificacion-prefix" class="text-xs">V-</span>
+                                                </span>
+                                                <div class="relative flex-1">
+                                                    <div class="relative">
+                                                        <input type="number" 
+                                                               name="identificacion" 
+                                                               id="identificacion" 
+                                                               class="block w-full pl-3 pr-8 py-1.5 text-sm border border-gray-300 rounded-r-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                               required
+                                                               pattern="\d*"
+                                                           inputmode="numeric"
+                                                           onpaste="return false"
+                                                           ondrop="return false"
+                                                           maxlength="9"
+                                                           title="Ingrese el número de identificación"
+                                                           placeholder="12345678">
+                                                        <button type="button" 
+                                                                id="clear-identificacion" 
+                                                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                                                                title="Borrar">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                        <div class="input-icon error hidden text-red-500">
+                                                            <i class="fas fa-exclamation-circle"></i>
+                                                        </div>
+                                                        <div class="input-icon success hidden text-green-500">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="error-message text-red-500 text-xs mt-1 ml-1"></div>
+                                        </div>
+                                    </div>
+                            <div class="form-group">
+                                        <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre <span class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none text-gray-400">
+                                                <i class="fas fa-user text-xs"></i>
+                                            </div>
+                                            <input type="text" name="nombre" id="nombre" 
+                                                   class="block w-full pl-8 pr-8 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" 
+                                                   required 
+                                                   placeholder="Juan Pérez"
+                                                   minlength="3"
+                                                   maxlength="100"
+                                                   title="Ingrese al menos 3 caracteres"
+                                                   style="padding-left: 2rem;">
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <div class="input-icon error hidden text-red-500">
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                </div>
+                                                <div class="input-icon success hidden text-green-500">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1 ml-1">Ej: Juan Pérez</div>
+                                        <div class="error-message text-red-500 text-xs mt-1 ml-1"></div>
+                                    </div>
+                            <div class="form-group">
+                                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                                <i class="fas fa-envelope"></i>
+                                            </div>
+                                            <input type="email" name="email" id="email" 
+                                                   class="block w-full pl-8 pr-8 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
+                                                   placeholder="juan@ejemplo.com"
+                                                   pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$"
+                                                   title="Ingrese un correo electrónico válido"
+                                                   autocomplete="email"
+                                                   style="padding-left: 2rem;">
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <div class="input-icon error hidden text-red-500">
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                </div>
+                                                <div class="input-icon success hidden text-green-500">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1 ml-1">Ej: juan@ejemplo.com</div>
+                                        <div class="error-message text-red-500 text-xs mt-1 ml-1"></div>
+                                    </div>
+                            <div class="form-group">
+                                        <label for="telefono" class="block text-sm font-medium text-gray-700 mb-1">Teléfono <span class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                                <i class="fas fa-phone"></i>
+                                            </div>
+                                            <input type="tel" name="telefono" id="telefono" 
+                                                   class="block w-full pl-8 pr-8 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
+                                                   required
+                                                   pattern="[0-9]{11}"
+                                                   maxlength="11"
+                                                   minlength="11"
+                                                   title="Ingrese un número de teléfono válido (11 dígitos)"
+                                                   placeholder="04121234567"
+                                                   style="padding-left: 2rem;"
+                                                   oninput="try {
+                                                       this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
+                                                       const errorSpan = document.getElementById('telefono-error');
+                                                       const parentGroup = this.closest ? this.closest('.form-group') : null;
+                                                       const errorIcon = this.nextElementSibling;
+                                                       
+                                                       // Clear any existing error states
+                                                       if (errorSpan) {
+                                                           errorSpan.textContent = '';
+                                                           errorSpan.classList.add('hidden');
+                                                       }
+                                                       
+                                                       if (parentGroup && parentGroup.classList) {
+                                                           parentGroup.classList.remove('has-error');
+                                                       }
+                                                       
+                                                       if (errorIcon && errorIcon.classList) {
+                                                           errorIcon.classList.remove('text-red-500', 'fa-times-circle');
+                                                           errorIcon.classList.add('hidden');
+                                                           
+                                                           // Handle success icon if it exists
+                                                           const successIcon = errorIcon.nextElementSibling;
+                                                           
+                                                           if (this.value.length === 11) {
+                                                               this.setCustomValidity('');
+                                                               this.classList.remove('border-red-300', 'focus:border-red-500', 'focus:ring-red-500');
+                                                               this.classList.add('border-green-300', 'focus:border-green-500', 'focus:ring-green-500');
+                                                               
+                                                               if (successIcon && successIcon.classList) {
+                                                                   successIcon.classList.remove('hidden');
+                                                               }
+                                                           } else {
+                                                               this.classList.remove('border-green-300', 'focus:border-green-500', 'focus:ring-green-500');
+                                                               if (successIcon && successIcon.classList) {
+                                                                   successIcon.classList.add('hidden');
+                                                               }
+                                                           }
+                                                       }
+                                                   } catch (error) {
+                                                       console.error('Error in phone input handler:', error);
+                                                   }"
+                                                   } else {
+                                                       this.setCustomValidity('El teléfono debe tener exactamente 11 dígitos');
+                                                       this.classList.remove('border-green-300', 'focus:border-green-500', 'focus:ring-green-500');
+                                                       this.classList.add('border-red-300', 'focus:border-red-500', 'focus:ring-red-500');
+                                                       errorIcon.classList.remove('hidden');
+                                                       successIcon.classList.add('hidden');
+                                                       if (errorSpan) errorSpan.classList.remove('hidden');
+                                                   }">
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <div class="input-icon error hidden text-red-500">
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                </div>
+                                                <div class="input-icon success hidden text-green-500">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between items-baseline">
+                                            <div class="text-xs text-gray-500 mt-1 ml-1">Ej: 04121234567</div>
+                                            <div class="error-message text-red-500 text-xs mt-1 ml-1">
+                                                <span id="telefono-error" class="hidden">11 dígitos requeridos</span>
+                                            </div>
+                                        </div>
+                            </div>
+                            <div class="form-group">
+                                        <label for="direccion" class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                            </div>
+                                            <input type="text" id="direccion" name="direccion" 
+                                                   class="block w-full pl-8 pr-8 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
+                                                   placeholder="Calle Lebrun"
+                                                   value="Calle Lebrun"
+                                                   style="padding-left: 2rem;">
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <div class="input-icon error hidden text-red-500">
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                </div>
+                                                <div class="input-icon success hidden text-green-500">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1 ml-1">Ej: Calle Lebrun, Edificio X, Piso Y</div>
+                                        <div class="error-message text-red-500 text-xs mt-1 ml-1"></div>
+                                    </div>
+                            <div class="form-group md:col-span-2">
+                                        <label for="notas" class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 pt-3 pointer-events-none text-gray-400">
+                                                <i class="fas fa-sticky-note"></i>
+                                            </div>
+                                            <textarea id="notas" name="notas" rows="2"
+                                                      class="block w-full text-sm border border-gray-300 rounded-md shadow-sm py-1.5 pl-8 pr-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
+                                                      placeholder="Información adicional del cliente"
+                                                      maxlength="500"
+                                                      oninput="document.getElementById('notas-counter').textContent = this.value.length;"></textarea>
+                                            <div class="absolute bottom-1 right-1 bg-white/80 backdrop-blur-sm px-1.5 py-0.5 rounded text-xs">
+                                                <div class="text-gray-500">
+                                                    <span id="notas-counter">0</span>/500
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-gray-200 flex justify-end space-x-2">
+                                    <button type="button" onclick="closeModal()" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-indigo-500 transition-colors duration-150">
+                                        <i class="fas fa-times mr-1"></i> Cancelar
+                                    </button>
+                                    <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-indigo-500 transition-colors duration-150">
+                                        <i class="fas fa-save mr-1"></i> Guardar
+                                    </button>
+                        </div>
+                    </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <i class="fas fa-exclamation text-red-600"></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            ¿Eliminar Cliente?
+                        </h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500">
+                                ¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="confirmDelete()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Eliminar
+                    </button>
+                    <button type="button" onclick="closeDeleteModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form validation and interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('client-form');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            const notasTextarea = document.getElementById('notas');
+            const notasCounter = document.getElementById('notas-counter');
+            
+            // Update character counter for notes
+            if (notasTextarea && notasCounter) {
+                notasTextarea.addEventListener('input', function() {
+                    notasCounter.textContent = this.value.length;
+                });
+            }
+            
+            // Add real-time validation
+            inputs.forEach(input => {
+                // Skip checkboxes and hidden inputs
+                if (input.type === 'checkbox' || input.type === 'hidden') return;
+                
+                // Add focus effect
+                input.addEventListener('focus', function() {
+                    const parent = this.closest('.form-group') || this.parentElement;
+                    parent.classList.add('ring-2', 'ring-indigo-200');
+                    
+                    // Hide error when focusing on a field
+                    const errorIcon = parent.querySelector('.input-icon.error');
+                    const successIcon = parent.querySelector('.input-icon.success');
+                    const errorMessage = parent.querySelector('.error-message');
+                    
+                    if (errorIcon) errorIcon.classList.add('hidden');
+                    if (successIcon) successIcon.classList.remove('hidden');
+                    if (errorMessage) errorMessage.textContent = '';
+                });
+                
+                // Remove focus effect and validate on blur
+                input.addEventListener('blur', function() {
+                    const parent = this.closest('.form-group') || this.parentElement;
+                    parent.classList.remove('ring-2', 'ring-indigo-200');
+                    validateField(this);
+                });
+                
+                // Real-time validation for required fields
+                if (input.required) {
+                    input.addEventListener('input', function() {
+                        validateField(this);
+                    });
+                }
+            });
+            
+            // Validate individual field
+            function validateField(field) {
+                const parent = field.closest('.form-group') || field.parentElement;
+                const errorIcon = parent.querySelector('.input-icon.error');
+                const successIcon = parent.querySelector('.input-icon.success');
+                const errorMessage = parent.querySelector('.error-message');
+                
+                // Reset states
+                parent.classList.remove('has-error', 'success');
+                if (errorIcon) errorIcon.classList.add('hidden');
+                if (successIcon) successIcon.classList.add('hidden');
+                if (errorMessage) errorMessage.textContent = '';
+                
+                // Skip validation for disabled fields
+                if (field.disabled) return true;
+                
+                // Check required fields
+                if (field.required && !field.value.trim()) {
+                    parent.classList.add('has-error');
+                    if (errorIcon) errorIcon.classList.remove('hidden');
+                    if (errorMessage) errorMessage.textContent = 'Este campo es obligatorio';
+                    return false;
+                }
+                
+                // Skip further validation if empty and not required
+                if (!field.value.trim() && !field.required) {
+                    return true;
+                }
+                
+                // Email validation
+                if (field.type === 'email' && field.value) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(field.value)) {
+                        parent.classList.add('has-error');
+                        if (errorIcon) errorIcon.classList.remove('hidden');
+                        if (errorMessage) errorMessage.textContent = 'Ingrese un correo válido';
+                        return false;
+                    }
+                }
+                
+                // Phone validation
+                if (field.id === 'telefono' && field.value) {
+                    const phoneRegex = /^[0-9]{7,15}$/;
+                    if (!phoneRegex.test(field.value)) {
+                        parent.classList.add('has-error');
+                        if (errorIcon) errorIcon.classList.remove('hidden');
+                        if (errorMessage) errorMessage.textContent = 'Ingrese un teléfono válido (7-15 dígitos)';
+                        return false;
+                    }
+                }
+                
+                // Identificación validation
+                if (field.id === 'identificacion' && field.value) {
+                    const tipoIdentificacion = document.querySelector('input[name="tipo_identificacion"]:checked').value;
+                    let isValid = false;
+                    
+                    if (tipoIdentificacion === 'V') {
+                        // Validación para cédula (7 u 8 dígitos)
+                        isValid = /^\d{7,8}$/.test(field.value);
+                        if (!isValid && errorMessage) {
+                            errorMessage.textContent = 'La cédula debe tener 7 u 8 dígitos';
+                        }
+                    } else if (tipoIdentificacion === 'J') {
+                        // Validación para RIF (9 dígitos)
+                        isValid = /^\d{9}$/.test(field.value);
+                        if (!isValid && errorMessage) {
+                            errorMessage.textContent = 'El RIF debe tener 9 dígitos';
+                        }
+                    } else if (tipoIdentificacion === 'E') {
+                        // Validación para extranjero (5-9 dígitos)
+                        isValid = /^\d{5,9}$/.test(field.value);
+                        if (!isValid && errorMessage) {
+                            errorMessage.textContent = 'La identificación debe tener entre 5 y 9 dígitos';
+                        }
+                    }
+                    
+                    if (!isValid) {
+                        parent.classList.add('has-error');
+                        if (errorIcon) errorIcon.classList.remove('hidden');
+                        return false;
+                    }
+                }
+                
+                // If all validations pass
+                parent.classList.add('success');
+                if (successIcon) successIcon.classList.remove('hidden');
+                return true;
+            }
+            
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                let isValid = true;
+                const firstInvalidField = [];
+                
+                // Handle identification type change
+                const tipoIdentificacionInputs = document.querySelectorAll('input[name="tipo_identificacion"]');
+                const identificacionInput = document.getElementById('identificacion');
+                const identificacionPrefix = document.getElementById('identificacion-prefix');
+                
+                function updateIdentificationField() {
+                    const selectedType = document.querySelector('input[name="tipo_identificacion"]:checked').value;
+                    let prefix, pattern, maxLength;
+                    let placeholder = '';
+                    
+                    switch(selectedType) {
+                        case 'V':
+                            prefix = 'V-';
+                            placeholder = 'Ej: 12345678';
+                            pattern = '^\\d{8}$';
+                            maxLength = 8;
+                            break;
+                        case 'J':
+                            prefix = 'J-';
+                            placeholder = 'Ej: 123456789';
+                            pattern = '^\\d{9}$';
+                            maxLength = 9;
+                            break;
+                        case 'E':
+                            prefix = 'E-';
+                            placeholder = 'Ej: 12345';
+                            pattern = '^\\d{5,9}$';
+                            maxLength = 9;
+                            break;
+                    }
+                    
+                    identificacionPrefix.textContent = prefix;
+                    identificacionInput.placeholder = `${prefix}${selectedType === 'V' ? '12345678' : selectedType === 'J' ? '123456789' : '12345'}`;
+                    identificacionInput.pattern = pattern;
+                    identificacionInput.maxLength = maxLength;
+                    
+                    // Clear and re-validate field
+                    identificacionInput.value = identificacionInput.value.replace(/^[VJE]-?/, '');
+                    validateField(identificacionInput);
+                }
+                
+                tipoIdentificacionInputs.forEach(radio => {
+                    radio.addEventListener('change', updateIdentificationField);
+                });
+                
+                // Handle input - ensure only numbers and proper length
+                identificacionInput.addEventListener('input', function(e) {
+                    // Get the selected ID type
+                    const selectedType = document.querySelector('input[name="tipo_identificacion"]:checked').value;
+                    
+                    // Set max length based on ID type
+                    let maxLength = 9; // Default for J and E
+                    if (selectedType === 'V') {
+                        maxLength = 8; // Venezuelan ID: 7-8 digits
+                    } else if (selectedType === 'J') {
+                        maxLength = 9; // Juridical: 9 digits
+                    } else if (selectedType === 'E') {
+                        maxLength = 9; // Foreigner: 5-9 digits
+                    }
+                    
+                    // Enforce max length
+                    if (this.value.length > maxLength) {
+                        this.value = this.value.slice(0, maxLength);
+                    }
+                    
+                    // Update validation
+                    validateField(this);
+                });
+                
+                // Prevent non-numeric input and handle paste
+                identificacionInput.addEventListener('keydown', function(e) {
+                    // Allow: backspace, delete, tab, escape, enter, home, end, left, right
+                    if ([8, 9, 13, 27, 35, 36, 37, 38, 39, 40, 46].includes(e.keyCode) || 
+                        // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                        (e.ctrlKey === true && [65, 67, 86, 88].includes(e.keyCode)) ||
+                        // Allow: numbers on both main keyboard and numpad
+                        (e.keyCode >= 48 && e.keyCode <= 57) ||
+                        (e.keyCode >= 96 && e.keyCode <= 105)) {
+                        // Let it happen, don't do anything
+                        return;
+                    }
+                    
+                    // Prevent any other key press
+                    e.preventDefault();
+                });
+                
+                // Handle paste event
+                identificacionInput.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const text = (e.clipboardData || window.clipboardData).getData('text');
+                    const numbers = text.replace(/\D/g, '');
+                    document.execCommand('insertText', false, numbers);
+                });
+                
+                // Update identification prefix when type changes
+                document.querySelectorAll('input[name="tipo_identificacion"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const prefix = this.value + '-';
+                        document.getElementById('identificacion-prefix').textContent = prefix;
+                        
+                        // Update the input field if it has a value
+                        const idInput = document.getElementById('identificacion');
+                        if (idInput.value) {
+                            const currentValue = idInput.value.replace(/\D/g, '');
+                            idInput.value = currentValue;
+                        }
+                    });
+                });
+                
+                // Validate all fields
+                inputs.forEach(input => {
+                    if (!validateField(input)) {
+                        isValid = false;
+                        // Store first invalid field to focus on it
+                        if (firstInvalidField.length === 0) {
+                            firstInvalidField.push(input);
+                        }
+                    }
+                });
+                
+                if (isValid) {
+                    // Show success message
+                    showNotification('Cliente guardado exitosamente', 'success');
+                    // Close modal after 1 second
+                    setTimeout(closeModal, 1000);
+                    // Reset form
+                    form.reset();
+                } else {
+                    // Focus on first invalid field
+                    if (firstInvalidField.length > 0) {
+                        firstInvalidField[0].focus();
+                    }
+                    showNotification('Por favor complete los campos requeridos correctamente', 'error');
+                }
+            });
+        });
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Remove any existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => notification.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-md text-white ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            } shadow-lg z-50 notification transition-all duration-300 transform translate-x-0 opacity-100`;
+            
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${
+                        type === 'success' ? 'fa-check-circle' : 
+                        type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'
+                    } mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateX(120%)';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        // Form validation and interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('client-form');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            // Add real-time validation
+            inputs.forEach(input => {
+                // Add focus effect
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('ring-2', 'ring-indigo-500');
+                });
+                
+                // Remove focus effect
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('ring-2', 'ring-indigo-500');
+                    validateField(this);
+                });
+                
+                // Real-time validation for required fields
+                if (input.required) {
+                    input.addEventListener('input', function() {
+                        validateField(this);
+                    });
+                }
+            });
+            
+            // Validate individual field
+            function validateField(field) {
+                const parent = field.parentElement;
+                const errorElement = parent.querySelector('.error-message');
+                
+                if (field.required && !field.value.trim()) {
+                    parent.classList.add('has-error');
+                    if (errorElement) errorElement.textContent = 'Este campo es obligatorio';
+                    return false;
+                }
+                
+                // Identification validation
+                if (field.id === 'identificacion' && field.value.trim() !== '') {
+                    const selectedType = document.querySelector('input[name="tipo_identificacion"]:checked').value;
+                    let isValid = false;
+                    let errorMessage = '';
+                    
+                    switch(selectedType) {
+                        case 'V': // Venezolano: 7-8 dígitos
+                            isValid = /^\d{7,8}$/.test(field.value);
+                            errorMessage = 'La cédula debe tener 7 u 8 dígitos';
+                            break;
+                        case 'J': // Jurídico: 9 dígitos
+                            isValid = /^\d{9}$/.test(field.value);
+                            errorMessage = 'El RIF debe tener 9 dígitos';
+                            break;
+                        case 'E': // Extranjero: 5-9 dígitos
+                            isValid = /^\d{5,9}$/.test(field.value);
+                            errorMessage = 'El documento debe tener entre 5 y 9 dígitos';
+                            break;
+                    }
+                    
+                    if (!isValid) {
+                        parent.classList.add('has-error');
+                        if (errorElement) errorElement.textContent = errorMessage;
+                        return false;
+                    }
+                }
+                
+                // Email validation
+                if (field.type === 'email' && field.value) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(field.value)) {
+                        parent.classList.add('has-error');
+                        if (errorElement) errorElement.textContent = 'Ingrese un correo válido';
+                        return false;
+                    }
+                }
+                
+                // If all validations pass
+                parent.classList.remove('has-error');
+                if (errorElement) errorElement.textContent = '';
+                return true;
+            }
+            
+            // Save client function
+            window.saveClient = function() {
+                let isValid = true;
+                inputs.forEach(input => {
+                    if (!validateField(input)) {
+                        isValid = false;
+                    }
+                });
+                
+                if (isValid) {
+                    // Get form data
+                    const formData = new FormData(form);
+                    const clientData = {};
+                    
+                    // Convert FormData to object
+                    formData.forEach((value, key) => {
+                        clientData[key] = value;
+                    });
+                    
+                    // Handle identification
+                    const tipoIdentificacion = document.querySelector('input[name="tipo_identificacion"]:checked').value;
+                    const numeroIdentificacion = document.getElementById('identificacion').value.replace(/^[VJE]-/, '');
+                    clientData.tipoIdentificacion = tipoIdentificacion;
+                    clientData.numeroIdentificacion = numeroIdentificacion;
+                    clientData.identificacion = `${tipoIdentificacion}-${numeroIdentificacion}`;
+                    
+                    // Get client ID or generate new one
+                    const clientId = document.getElementById('client-id').value;
+                    
+                    if (clientId) {
+                        // Update existing client
+                        const index = clients.findIndex(c => c.id === clientId);
+                        if (index !== -1) {
+                            // Preserve important fields
+                            clientData.id = clientId;
+                            clientData.fechaRegistro = clients[index].fechaRegistro || new Date().toISOString();
+                            clientData.ultimaCompra = clients[index].ultimaCompra || null;
+                            clientData.moroso = clients[index].moroso || false;
+                            clientData.totalCompras = clients[index].totalCompras || 0;
+                            
+                            clients[index] = clientData;
+                            showNotification('Cliente actualizado exitosamente', 'success');
+                        }
+                    } else {
+                        // Add new client
+                        clientData.id = 'clt_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
+                        clientData.fechaRegistro = new Date().toISOString();
+                        clientData.ultimaCompra = null;
+                        clientData.moroso = false;
+                        clientData.totalCompras = 0;
+                        
+                        clients.push(clientData);
+                        showNotification('Cliente guardado exitosamente', 'success');
+                    }
+                    
+                    // Save to localStorage and update UI
+                    saveClients();
+                    renderClients();
+                    
+                    // Close modal and reset form after a delay
+                    setTimeout(() => {
+                        closeModal();
+                        form.reset();
+                    }, 1000);
+                    
+                } else {
+                    showNotification('Por favor complete los campos requeridos correctamente', 'error');
+                }
+            };
+        });
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-md text-white ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            } shadow-lg z-50 transition-all duration-300 transform translate-x-0 opacity-100`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateX(120%)';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Function to handle modal accessibility
+        function setupModalAccessibility() {
+            const modal = document.getElementById('client-modal');
+            const modalBackdrop = document.querySelector('[data-modal-backdrop]');
+            
+            // Close modal on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeModal();
+                }
+            });
+
+            // Trap focus inside modal when open
+            modal.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    const focusableSelectors = [
+                        'button:not([disabled])',
+                        '[href]',
+                        'input:not([disabled]):not([type="hidden"])',
+                        'select:not([disabled])',
+                        'textarea:not([disabled])',
+                        '[tabindex]:not([tabindex="-1"]):not([disabled])'
+                    ].join(',');
+                    
+                    const focusableElements = modal.querySelectorAll(focusableSelectors);
+                    const firstFocusableElement = focusableElements[0];
+                    const lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+                    if (e.shiftKey) {
+                        if (document.activeElement === firstFocusableElement) {
+                            lastFocusableElement.focus();
+                            e.preventDefault();
+                        }
+                    } else {
+                        if (document.activeElement === lastFocusableElement) {
+                            firstFocusableElement.focus();
+                            e.preventDefault();
+                        }
+                    }
+                }
+            });
+        }
+
+        // Call this when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setupModalAccessibility();
+            
+            // Update modal button to use the proper function
+            const nuevoClienteBtn = document.getElementById('nuevo-cliente-btn');
+            if (nuevoClienteBtn) {
+                nuevoClienteBtn.onclick = function(e) {
+                    e.preventDefault();
+                    showClientModal();
+                };
+            }
+        });
+
+        // Function to show the client modal with proper focus management
+        function showClientModal() {
+            const modal = document.getElementById('client-modal');
+            if (!modal) return;
+
+            // Store the currently focused element
+            window.focusedElementBeforeModal = document.activeElement;
+            
+            // Show the modal
+            modal.classList.remove('hidden');
+            modal.removeAttribute('aria-hidden');
+            document.body.classList.add('overflow-hidden');
+            
+            // Set focus to the first focusable element in the modal
+            const focusableSelectors = [
+                'button:not([disabled])',
+                '[href]',
+                'input:not([disabled]):not([type="hidden"])',
+                'select:not([disabled])',
+                'textarea:not([disabled])',
+                '[tabindex]:not([tabindex="-1"]):not([disabled])'
+            ].join(',');
+            
+            // Use setTimeout to ensure the modal is visible before setting focus
+            setTimeout(() => {
+                const focusableElements = modal.querySelectorAll(focusableSelectors);
+                if (focusableElements.length > 0) {
+                    focusableElements[0].focus();
+                }
+            }, 10);
+        }
+        
+        // Function to toggle client status
+        function toggleClientStatus(clientId, isActive) {
+            const client = window.clients.find(c => c.id === clientId);
+            if (client) {
+                client.activo = isActive;
+                saveClients();
+                renderClients();
+                
+                // Show notification
+                showNotification(
+                    `Cliente ${isActive ? 'activado' : 'desactivado'} correctamente`, 
+                    'success'
+                );
+            }
+        }
+        
+        // Function to close the modal with proper focus management
+        function closeModal() {
+            const modal = document.getElementById('client-modal');
+            if (!modal) return;
+            
+            // Hide the modal
+            modal.classList.add('hidden');
+            
+            // Remove focus from any focused element inside the modal
+            const focusedElement = document.activeElement;
+            if (modal.contains(focusedElement)) {
+                focusedElement.blur();
+            }
+            
+            document.body.classList.remove('overflow-hidden');
+            
+            // Restore focus to the element that had it before the modal opened
+            if (window.focusedElementBeforeModal) {
+                window.focusedElementBeforeModal.focus();
+            }
+        }
+        // Load saved clients from localStorage
+        function loadSavedClients() {
+            try {
+                const savedClients = JSON.parse(localStorage.getItem('savedClients') || '[]');
+                if (savedClients.length > 0) {
+                    console.log('Clientes cargados desde localStorage:', savedClients);
+                }
+            } catch (error) {
+                console.error('Error al cargar clientes guardados:', error);
+            }
+        }
+        
+        // Initialize the page
+        // Initialize global variables
+        window.clients = [];
+        window.currentPage = 1;
+        window.itemsPerPage = 10;
+        
+        // Asegurarse de que las funciones estén disponibles globalmente
+        window.initializeSampleData = initializeSampleData;
+        window.loadClients = loadClients;
+        window.renderClients = renderClients;
+        window.saveClients = saveClients;  // Asegurar que saveClients sea global
+        
+        // Initialize DOM elements when the page loads
+        // Add retry counter at the top of the script
+        window.initializeAppRetries = 0;
+        const MAX_RETRIES = 10;
+        
+        function initializeApp() {
+            console.log('Inicializando aplicación...');
+            
+            try {
+                // Get DOM elements
+                window.clientsTableBody = document.getElementById('clients-table-body');
+                window.searchInput = document.getElementById('search-input');
+                window.statusFilter = document.getElementById('status-filter');
+                
+                // Verificar elementos del DOM
+                if (!window.clientsTableBody || !window.statusFilter) {
+                    window.initializeAppRetries = window.initializeAppRetries || 0;
+                    window.initializeAppRetries++;
+                    
+                    console.log(`Intento ${window.initializeAppRetries} de ${MAX_RETRIES}: Elementos del DOM no encontrados, reintentando...`);
+                    console.log('clientsTableBody:', !!window.clientsTableBody);
+                    console.log('statusFilter:', !!window.statusFilter);
+                    
+                    if (window.initializeAppRetries >= MAX_RETRIES) {
+                        console.error('Número máximo de reintentos alcanzado. Algunos elementos no se encontraron.');
+                        // Initialize with empty values to prevent errors
+                        if (!window.clientsTableBody) {
+                            window.clientsTableBody = document.createElement('tbody');
+                            const table = document.querySelector('table');
+                            if (table) table.appendChild(window.clientsTableBody);
+                        }
+                        if (!window.statusFilter) {
+                            window.statusFilter = document.createElement('select');
+                        }
+                        console.log('Elementos del DOM inicializados con valores por defecto');
+                    } else {
+                        // Reintentar después de un breve retraso
+                        setTimeout(initializeApp, 200);
+                        return false;
+                    }
+                }
+                
+                // Initialize search input if it doesn't exist
+                if (!window.searchInput) {
+                    console.log('Search input not found, creating a default one');
+                    window.searchInput = document.createElement('input');
+                    window.searchInput.type = 'text';
+                    window.searchInput.id = 'search-input';
+                    window.searchInput.className = 'form-input';
+                    window.searchInput.placeholder = 'Buscar clientes...';
+                    
+                    // Try to find a good place to insert the search input
+                    const statusFilterParent = window.statusFilter?.parentNode;
+                    if (statusFilterParent) {
+                        statusFilterParent.insertBefore(window.searchInput, window.statusFilter);
+                    }
+                }
+                
+                console.log('Elementos del DOM cargados correctamente');
+                
+                // Cargar clientes con un pequeño retraso para asegurar que todo esté listo
+                console.log('Cargando clientes...');
+                loadClients();
+                
+                // Configurar manejadores de eventos
+                setupEventListeners();
+                
+                return true;
+                
+            } catch (error) {
+                console.error('Error en initializeApp:', error);
+                // Reintentar en caso de error
+                setTimeout(initializeApp, 100);
+                return false;
+            }
+        }
+        
+        // Initialize the app when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM completamente cargado, inicializando aplicación...');
+            
+            // Reset retry counter
+            window.initializeAppRetries = 0;
+            
+            // Forzar una limpieza del localStorage si es necesario
+            try {
+                const savedClients = localStorage.getItem('clients');
+                if (savedClients === 'undefined' || savedClients === 'null') {
+                    console.log('Limpieza de datos inválidos en localStorage');
+                    localStorage.removeItem('clients');
+                }
+            } catch (e) {
+                console.error('Error al limpiar localStorage:', e);
+            }
+            
+            // Inicializar la aplicación
+            initializeApp();
+        });
+        
+        // Si el DOM ya está listo, inicializar de inmediato
+        if (document.readyState !== 'loading') {
+            console.log('DOM ya está listo, inicializando aplicación...');
+            initializeApp();
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Search input
+            searchInput.addEventListener('input', (e) => {
+                currentPage = 1;
+                renderClients();
+            });
+
+            // Status filter
+            statusFilter.addEventListener('change', () => {
+                currentPage = 1;
+                renderClients();
+            });
+
+            // Pagination
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.page-link')) {
+                    e.preventDefault();
+                    const page = parseInt(e.target.closest('.page-link').dataset.page);
+                    if (!isNaN(page)) {
+                        currentPage = page;
+                        renderClients();
+                    }
+                }
+            });
+        }
+
+        // Load clients from localStorage
+        function loadClients() {
+            console.log('Cargando clientes...');
+            try {
+                const savedClients = localStorage.getItem('clients');
+                console.log('Datos de clientes en localStorage:', savedClients);
+                
+                if (savedClients && savedClients !== 'undefined' && savedClients !== 'null') {
+                    try {
+                        const parsedClients = JSON.parse(savedClients);
+                        if (parsedClients && Array.isArray(parsedClients)) {
+                            // Solo cargar clientes que no sean de ejemplo
+                            // Los clientes de ejemplo tienen IDs que comienzan con 'sample_'
+                            window.clients = parsedClients.filter(client => !client.id.startsWith('sample_'));
+                            console.log('Clientes cargados exitosamente:', window.clients.length);
+                        } else {
+                            console.error('Los datos de clientes en localStorage no son un array válido');
+                            window.clients = [];
+                        }
+                    } catch (parseError) {
+                        console.error('Error al analizar los datos de clientes:', parseError);
+                        window.clients = [];
+                    }
+                } else {
+                    console.log('No hay clientes guardados en localStorage o los datos son inválidos');
+                    window.clients = [];
+                }
+                
+                console.log('Datos finales de clientes:', window.clients);
+                
+                // Forzar la renderización de la tabla
+                console.log('Renderizando clientes...');
+                renderClients();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error al cargar clientes:', error);
+                window.clients = [];
+                // Intentar con datos de ejemplo en caso de error
+                initializeSampleData();
+                saveClients();
+                renderClients();
+            }
+        }
+
+        // Save clients to localStorage
+        function saveClients() {
+            try {
+                if (!window.clients || !Array.isArray(window.clients)) {
+                    console.error('Datos de clientes no válidos para guardar:', window.clients);
+                    window.clients = [];
+                }
+                
+                console.log('Guardando clientes en localStorage:', window.clients);
+                const clientsToSave = JSON.stringify(window.clients);
+                localStorage.setItem('clients', clientsToSave);
+                console.log('Clientes guardados correctamente en localStorage');
+                
+                // Verificar que se guardaron correctamente
+                const savedData = localStorage.getItem('clients');
+                if (savedData !== clientsToSave) {
+                    console.error('Error: Los datos no se guardaron correctamente en localStorage');
+                } else {
+                    console.log('Verificación exitosa: los datos se guardaron correctamente');
+                }
+                
+                updateStats();
+                return true;
+            } catch (error) {
+                console.error('Error al guardar clientes en localStorage:', error);
+                return false;
+            }
+        }
+
+        // Save or update a client
+        function saveClient(event) {
+            event.preventDefault();
+            console.log('Iniciando guardado de cliente...');
+            
+            const form = document.getElementById('client-form');
+            if (!form) {
+                console.error('No se encontró el formulario de cliente');
+                return false;
+            }
+            
+            const formData = new FormData(form);
+            const clientData = {};
+            
+            // Get the identification type and number
+            const tipoIdentificacion = document.querySelector('input[name="tipo_identificacion"]:checked').value;
+            const numeroIdentificacion = document.getElementById('identificacion').value.replace(/^[VJE]-/, '');
+            
+            // Convert FormData to object
+            formData.forEach((value, key) => {
+                if (key === 'activo') {
+                    clientData[key] = document.getElementById('activo').checked;
+                } else if (key === 'identificacion') {
+                    // Format the full identification with type
+                    clientData['tipoIdentificacion'] = tipoIdentificacion;
+                    clientData['numeroIdentificacion'] = numeroIdentificacion;
+                    clientData['identificacion'] = `${tipoIdentificacion}-${numeroIdentificacion}`;
+                } else {
+                    clientData[key] = value;
+                }
+            });
+            
+            // Validation
+            if (!clientData.nombre || !clientData.identificacion || !clientData.telefono) {
+                showNotification('Por favor complete todos los campos obligatorios', 'error');
+                return false;
+            }
+            
+            // Get the client ID from the form (if editing)
+            const clientId = document.getElementById('client-id')?.value || '';
+            
+            // Ensure window.clients is initialized as an array
+            if (!Array.isArray(window.clients)) {
+                console.log('Initializing clients array...');
+                window.clients = [];
+            }
+            
+            // Load existing clients from localStorage
+            try {
+                const savedClients = localStorage.getItem('clients');
+                if (savedClients && savedClients !== 'undefined' && savedClients !== 'null') {
+                    const parsedClients = JSON.parse(savedClients);
+                    if (Array.isArray(parsedClients)) {
+                        // Filter out sample clients and ensure no duplicates
+                        const uniqueClients = [];
+                        const seenIds = new Set();
+                        
+                        parsedClients.forEach(client => {
+                            if (!client.id.startsWith('sample_') && !seenIds.has(client.id)) {
+                                seenIds.add(client.id);
+                                uniqueClients.push(client);
+                            }
+                        });
+                        
+                        window.clients = uniqueClients;
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading existing clients:', e);
+                window.clients = [];
+            }
+            
+            if (!clientId) {
+                // For new clients, check for duplicates
+                const isDuplicate = window.clients.some(client => 
+                    client.identificacion === clientData.identificacion
+                );
+                
+                if (isDuplicate) {
+                    showNotification('Ya existe un cliente con esta identificación', 'error');
+                    return false;
+                }
+                
+                // Create new client with unique ID
+                clientData.id = 'clt_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
+                clientData.fechaRegistro = new Date().toISOString();
+                clientData.ultimaCompra = null;
+                clientData.moroso = false;
+                clientData.totalCompras = 0;
+                
+                // Add new client to the beginning of the array
+                window.clients = [clientData, ...window.clients];
+                showNotification('Cliente guardado exitosamente', 'success');
+            } else {
+                // Update existing client
+                const index = window.clients.findIndex(c => c.id === clientId);
+                if (index !== -1) {
+                    // Preserve important fields
+                    clientData.id = clientId;
+                    clientData.fechaRegistro = window.clients[index].fechaRegistro || new Date().toISOString();
+                    clientData.ultimaCompra = window.clients[index].ultimaCompra || null;
+                    clientData.moroso = window.clients[index].moroso || false;
+                    clientData.totalCompras = window.clients[index].totalCompras || 0;
+                    
+                    window.clients[index] = clientData;
+                    showNotification('Cliente actualizado exitosamente', 'success');
+                }
+            }
+            
+            // Save to localStorage
+            const saveSuccess = saveClients();
+            
+            if (saveSuccess) {
+                // Update UI
+                renderClients();
+                updateStats();
+                
+                // Close modal and reset form immediately
+                closeModal();
+                form.reset();
+                document.getElementById('client-id').value = ''; // Reset client ID
+            } else {
+                showNotification('Error al guardar el cliente', 'error');
+            }
+            
+            return false;
+        }
+        
+        // Make functions globally available
+        window.saveClient = saveClient;
+        window.abrirModalCliente = abrirModalCliente;
+        window.loadClients = loadClients;
+        window.renderClients = renderClients;
+
+        // Filter and sort clients
+        function getFilteredClients() {
+            let filtered = [...clients];
+            const searchTerm = searchInput.value.toLowerCase();
+            const status = statusFilter.value;
+
+            // Apply search filter
+            if (searchTerm) {
+                filtered = filtered.filter(client => 
+                    client.nombre.toLowerCase().includes(searchTerm) ||
+                    (client.identificacion && client.identificacion.includes(searchTerm)) ||
+                    (client.email && client.email.toLowerCase().includes(searchTerm)) ||
+                    (client.telefono && client.telefono.includes(searchTerm))
+                );
+            }
+
+            // Apply status filter
+            if (status === 'active') {
+                filtered = filtered.filter(client => client.activo !== false);
+            } else if (status === 'inactive') {
+                filtered = filtered.filter(client => client.activo === false);
+            } else if (status === 'overdue') {
+                // This is a placeholder - you would implement your own logic for overdue clients
+                filtered = filtered.filter(client => client.moroso === true);
+            }
+
+            // Sort by last name if available, otherwise by name
+            return filtered.sort((a, b) => {
+                const nameA = a.nombre.split(' ').pop().toLowerCase();
+                const nameB = b.nombre.split(' ').pop().toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
+        }
+
+        
+        // Render clients table
+        function renderClients(showLoading = false) {
+            console.log('Renderizando clientes...', window.clients);
+            if (!window.clientsTableBody) {
+                console.error('No se encontró el elemento clientsTableBody');
+                window.clientsTableBody = document.getElementById('clients-table-body');
+                if (!window.clientsTableBody) {
+                    console.error('Aún no se puede encontrar clientsTableBody');
+                    return;
+                }
+            }
+            
+            const filteredClients = getFilteredClients();
+            const start = (currentPage - 1) * itemsPerPage;
+            const paginatedClients = filteredClients.slice(start, start + itemsPerPage);
+            
+            // Update pagination info
+            const paginationTotal = document.getElementById('pagination-total');
+            const paginationStart = document.getElementById('pagination-start');
+            const paginationEnd = document.getElementById('pagination-end');
+            
+            if (paginationTotal) paginationTotal.textContent = filteredClients.length;
+            if (paginationStart) paginationStart.textContent = filteredClients.length > 0 ? start + 1 : 0;
+            if (paginationEnd) paginationEnd.textContent = Math.min(start + itemsPerPage, filteredClients.length);
+            
+            // Show loading state if requested
+            if (showLoading) {
+                clientsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center">
+                            <div class="animate-pulse py-8">
+                                <i class="fas fa-spinner fa-spin text-2xl text-indigo-600"></i>
+                                <p class="mt-2 text-sm text-gray-500">Cargando clientes...</p>
+                            </div>
+                        </td>
+                    </tr>`;
+                
+                // Small delay to show loading state
+                setTimeout(renderTableContent, 300);
+                return;
+            }
+            
+            // Render content immediately if not showing loading state
+            renderTableContent();
+            
+            function renderTableContent() {
+                // Clear table
+                clientsTableBody.innerHTML = '';
+            
+                if (paginatedClients.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-users-slash text-3xl text-gray-300 mb-2"></i>
+                            <p>No hay clientes registrados</p>
+                            <button onclick="abrirModalCliente()" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <i class="fas fa-plus mr-2"></i> Agregar Cliente
+                            </button>
+                        </td>
+                    `;
+                    clientsTableBody.appendChild(row);
+                    renderPagination(filteredClients.length);
+                    return;
+                }
+            
+                // Add clients to table
+                paginatedClients.forEach(client => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                <span class="text-indigo-600 font-medium">${client.nombre.charAt(0).toUpperCase()}</span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${client.nombre}</div>
+                                <div class="text-sm text-gray-500">${client.identificacion || 'Sin ID'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${client.telefono || 'N/A'}</div>
+                        <div class="text-sm text-gray-500">${client.email || 'Sin correo'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${client.tipo === 'empresa' ? 'bg-purple-100 text-purple-800' : 
+                              client.tipo === 'mayorista' ? 'bg-blue-100 text-blue-800' : 
+                              'bg-gray-100 text-gray-800'}">
+                            ${client.tipo ? client.tipo.charAt(0).toUpperCase() + client.tipo.slice(1) : 'Particular'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${client.ultimaCompra ? formatDate(client.ultimaCompra) : 'Nunca'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" ${client.activo !== false ? 'checked' : ''} 
+                                   class="sr-only peer" 
+                                   onchange="toggleClientStatus('${client.id}', this.checked)">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                            <span class="ml-3 text-sm font-medium text-gray-900">
+                                ${client.activo !== false ? 'Activo' : 'Inactivo'}
+                            </span>
+                        </label>
+                        ${client.moroso ? '<span class="status-badge status-pending ml-2"><i class="fas fa-exclamation-triangle mr-1"></i>Moroso</span>' : ''}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="editClient('${client.id}'); event.stopPropagation();" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="showDeleteModal('${client.id}'); event.stopPropagation();" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                // Add click event to view client details
+                row.addEventListener('click', () => viewClient(client.id));
+                clientsTableBody.appendChild(row);
+            });
+            
+                renderPagination(filteredClients.length);
+            }
+        }
+
+        // Render pagination controls
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const pagination = document.querySelector('.pagination');
+            if (!pagination) return;
+            
+            let html = `
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <button onclick="${currentPage > 1 ? `changePage(${currentPage - 1})` : '#'}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}">
+                        Anterior
+                    </button>
+                    <button onclick="${currentPage < totalPages ? `changePage(${currentPage + 1})` : '#'}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}">
+                        Siguiente
+                    </button>
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Mostrando <span class="font-medium">${Math.min((currentPage - 1) * itemsPerPage + 1, totalItems)}</span> a 
+                            <span class="font-medium">${Math.min(currentPage * itemsPerPage, totalItems)}</span> de 
+                            <span class="font-medium">${totalItems}</span> resultados
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <button onclick="${currentPage > 1 ? `changePage(${currentPage - 1})` : 'return false;'}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'}">
+                                <span class="sr-only">Anterior</span>
+                                <i class="fas fa-chevron-left h-5 w-5"></i>
+                            </button>`;
+            
+            // Page numbers
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            // First page
+            if (startPage > 1) {
+                html += `
+                    <button onclick="changePage(1)" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                        1
+                    </button>`;
+                if (startPage > 2) {
+                    html += `
+                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                            ...
+                        </span>`;
+                }
+            }
+            
+            // Middle pages
+            for (let i = startPage; i <= endPage; i++) {
+                html += `
+                    <button onclick="changePage(${i})" class="${i === currentPage ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'} relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                        ${i}
+                    </button>`;
+            }
+            
+            // Last page
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    html += `
+                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                            ...
+                        </span>`;
+                }
+                html += `
+                    <button onclick="changePage(${totalPages})" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                        ${totalPages}
+                    </button>`;
+            }
+            
+            // Next button
+            html += `
+                <button onclick="${currentPage < totalPages ? `changePage(${currentPage + 1})` : 'return false;'}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${currentPage === totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'}">
+                    <span class="sr-only">Siguiente</span>
+                    <i class="fas fa-chevron-right h-5 w-5"></i>
+                </button>`;
+            
+            html += `
+                        </nav>
+                    </div>
+                </div>`;
+            
+            pagination.innerHTML = html;
+        }
+
+        // Change current page
+        function changePage(page) {
+            if (page < 1 || page > Math.ceil(getFilteredClients().length / itemsPerPage)) {
+                return;
+            }
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('es-ES', options);
+        }
+
+        // Update stats
+        function updateStats() {
+            const totalClients = clients.length;
+            const activeClients = clients.filter(c => c.activo !== false).length;
+            const overdueClients = clients.filter(c => c.moroso).length;
+            
+            // This is a placeholder - in a real app, you would calculate actual monthly sales
+            const monthlySales = clients.reduce((total, client) => total + (client.totalCompras || 0), 0);
+            
+            document.getElementById('total-clients').textContent = totalClients;
+            document.getElementById('active-clients').textContent = activeClients;
+            document.getElementById('overdue-clients').textContent = overdueClients;
+            document.getElementById('month-sales').textContent = `$${monthlySales.toLocaleString()}`;
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-md ${type === 'error' ? 'bg-red-50 text-red-800' : 'bg-green-50 text-green-800'} shadow-lg`;
+            notification.innerHTML = `
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas ${type === 'error' ? 'fa-exclamation-circle text-red-400' : 'fa-check-circle text-green-400'} h-5 w-5"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium">${message}</p>
+                    </div>
+                    <div class="ml-4 flex-shrink-0 flex">
+                        <button class="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none" onclick="this.parentElement.parentElement.parentElement.remove()">
+                            <span class="sr-only">Cerrar</span>
+                            <i class="fas fa-times h-5 w-5"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.opacity = '0';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 5000);
+        }
+        
+        // Add some sample data if no clients exist
+        function generateId() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function initializeSampleData() {
+            console.log('Inicializando datos...');
+            
+            // No agregar clientes de ejemplo automáticamente
+            console.log('No se agregarán clientes de ejemplo automáticamente');
+            
+            // Inicializar con un array vacío si no hay datos
+            if (!window.clients || !Array.isArray(window.clients)) {
+                window.clients = [];
+                saveClients();
+            }
+            
+            return [];
+        }
+        
+        // No inicializar con datos de ejemplo automáticamente
+        // Los clientes se cargarán solo desde localStorage
+        
+        // Add hover effects to table rows
+        document.addEventListener('DOMContentLoaded', function() {
+            const table = document.querySelector('table');
+            if (table) {
+                table.addEventListener('mouseover', function(e) {
+                    const row = e.target.closest('tr');
+                    if (row && !row.classList.contains('bg-gray-50')) {
+                        row.classList.add('bg-gray-50');
+                        row.style.transition = 'background-color 0.2s';
+                    }
+                });
+                
+                table.addEventListener('mouseout', function(e) {
+                    const row = e.target.closest('tr');
+                    if (row && row.classList.contains('bg-gray-50') && !row.classList.contains('bg-indigo-50')) {
+                        row.classList.remove('bg-gray-50');
+                    }
+                });
+            }
+            
+            // Add click effect to buttons
+            document.addEventListener('mousedown', function(e) {
+                if (e.target.closest('button')) {
+                    e.target.closest('button').classList.add('scale-95');
+                }
+            });
+            
+            document.addEventListener('mouseup', function(e) {
+                if (e.target.closest('button')) {
+                    e.target.closest('button').classList.remove('scale-95');
+                }
+            });
+            
+            // Initialize tooltips
+            const tooltipElements = document.querySelectorAll('[data-tooltip]');
+            tooltipElements.forEach(el => {
+                el.addEventListener('mouseenter', showTooltip);
+                el.addEventListener('mouseleave', hideTooltip);
+            });
+        });
+        
+        function showTooltip(e) {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'absolute z-50 px-2 py-1 text-xs text-white bg-gray-800 rounded shadow-lg';
+            tooltip.textContent = this.getAttribute('data-tooltip');
+            document.body.appendChild(tooltip);
+            
+            const rect = this.getBoundingClientRect();
+            tooltip.style.top = `${rect.top - tooltip.offsetHeight - 5}px`;
+            tooltip.style.left = `${rect.left + (this.offsetWidth / 2) - (tooltip.offsetWidth / 2)}px`;
+            
+            this._tooltip = tooltip;
+        }
+        
+        function hideTooltip() {
+            if (this._tooltip) {
+                this._tooltip.remove();
+                this._tooltip = null;
+            }
+        };
+        
+        // Inicializar el array de clientes si no existe
+        if (!window.clients || !Array.isArray(window.clients)) {
+            window.clients = [];
+            loadClients(); // Cargar clientes al iniciar
+        }
+
+        // Configurar el botón de borrado después de que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            const clearButton = document.getElementById('clear-identificacion');
+            if (clearButton) {
+                clearButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const idInput = document.getElementById('identificacion');
+                    if (idInput) {
+                        idInput.value = '';
+                        idInput.focus();
+                        validateField(idInput);
+                    }
+                });
+            }
+        });
+
+        // Inicializar la navegación
+        // Single DOMContentLoaded handler
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set active nav link
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            document.querySelectorAll('nav a').forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('text-blue-400', 'font-semibold');
+                }
+            });
+
+            // Initialize the page
+            console.log('Inicializando página de clientes...');
+            
+            // Load clients from localStorage
+            loadClients();
+            
+            // Initial render
+            renderClients();
+            updateStats();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Initialize new client button
+            const btnNuevoCliente = document.getElementById('nuevo-cliente-btn');
+            if (btnNuevoCliente) {
+                btnNuevoCliente.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    abrirModalCliente();
+                });
+            }
+        });
+
+        // Format date
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('es-ES', options);
+        }
+
+        // Get status badge class
+        function getStatusClass(status) {
+            const classes = {
+                'activo': 'bg-green-100 text-green-800',
+                'inactivo': 'bg-gray-100 text-gray-800',
+                'moroso': 'bg-red-100 text-red-800',
+                'premium': 'bg-yellow-100 text-yellow-800'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        // Función para renderizar los clientes
+        function renderClients(showLoading = false) {
+            console.log('Renderizando clientes...', window.clients);
+            
+            // Asegurarse de que el cuerpo de la tabla existe
+            const tableBody = document.getElementById('clients-table-body');
+            if (!tableBody) {
+                console.error('No se encontró el elemento clients-table-body');
+                return;
+            }
+            
+            // Mostrar estado de carga si es necesario
+            if (showLoading) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center">
+                            <div class="animate-pulse py-8">
+                                <i class="fas fa-spinner fa-spin text-2xl text-indigo-600"></i>
+                                <p class="mt-2 text-sm text-gray-500">Cargando clientes...</p>
+                            </div>
+                        </td>
+                    </tr>`;
+                return;
+            }
+            
+            // Si no hay clientes, mostrar mensaje
+            if (!window.clients || window.clients.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-users-slash text-3xl text-gray-300 mb-2"></i>
+                            <p>No hay clientes registrados</p>
+                            <button onclick="abrirModalCliente()" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <i class="fas fa-plus mr-2"></i> Agregar Cliente
+                            </button>
+                        </td>
+                    </tr>`;
+                return;
+            }
+            
+            // Limpiar la tabla
+            tableBody.innerHTML = '';
+            
+            // Agregar cada cliente a la tabla
+            window.clients.forEach(client => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                <span class="text-indigo-600 font-medium">${client.nombre ? client.nombre.charAt(0).toUpperCase() : '?'}</span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${client.nombre || 'Sin nombre'}</div>
+                                <div class="text-sm text-gray-500">${client.identificacion || 'Sin ID'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${client.telefono || 'N/A'}</div>
+                        <div class="text-sm text-gray-500">${client.email || 'Sin correo'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${client.tipo === 'empresa' ? 'bg-purple-100 text-purple-800' : 
+                              client.tipo === 'mayorista' ? 'bg-blue-100 text-blue-800' : 
+                              'bg-gray-100 text-gray-800'}">
+                            ${client.tipo ? client.tipo.charAt(0).toUpperCase() + client.tipo.slice(1) : 'Particular'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${client.ultimaCompra ? formatDate(client.ultimaCompra) : 'Nunca'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${client.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${client.activo ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="editClient('${client.id}'); event.stopPropagation();" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteClient('${client.id}'); event.stopPropagation();" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                // Agregar evento de clic para ver detalles
+                row.addEventListener('click', () => viewClient(client.id));
+                tableBody.appendChild(row);
+            });
+            
+            // Actualizar la paginación si es necesario
+            const filteredClients = getFilteredClients();
+            renderPagination(filteredClients.length);
+        }
+
+        // Save client from list
+        function saveClientFromList(id) {
+            const client = clients.find(c => c.id === id);
+            if (!client) {
+                console.error('Client not found with id:', id);
+                return;
+            }
+            
+            try {
+                    // Get the current clients from localStorage or initialize an empty array
+                    const savedClients = JSON.parse(localStorage.getItem('savedClients') || '[]');
+                    
+                    // Check if client already exists
+                    const existingClientIndex = savedClients.findIndex(c => c.id === id);
+                    
+                    if (existingClientIndex !== -1) {
+                        // Update existing client
+                        savedClients[existingClientIndex] = client;
+                        showNotification(`Cliente ${client.name} actualizado exitosamente`, 'success');
+                    } else {
+                        // Add new client
+                        savedClients.push(client);
+                        showNotification(`Cliente ${client.name} guardado exitosamente`, 'success');
+                    }
+                    
+                    // Save back to localStorage
+                    localStorage.setItem('savedClients', JSON.stringify(savedClients));
+                    
+                    // Update the UI to show the saved state
+                    const saveButton = document.querySelector(`button[onclick="saveClientFromList(${id})"]`);
+                    if (saveButton) {
+                        // Visual feedback
+                        saveButton.innerHTML = '<i class="fas fa-check"></i>';
+                        saveButton.classList.remove('text-green-600', 'hover:text-green-800');
+                        saveButton.classList.add('text-green-500', 'cursor-default');
+                        
+                        // Revert after 2 seconds
+                        setTimeout(() => {
+                            saveButton.innerHTML = '<i class="fas fa-save"></i>';
+                            saveButton.classList.add('text-green-600', 'hover:text-green-800');
+                            saveButton.classList.remove('text-green-500', 'cursor-default');
+                        }, 2000);
+                    }
+                    
+                    console.log('Clientes guardados:', savedClients);
+                } catch (error) {
+                    console.error('Error al guardar el cliente:', error);
+                    showNotification('Error al guardar el cliente', 'error');
+                }
+            }
+
+        // Client actions
+        function editClient(id) {
+            const client = clients.find(c => c.id === id);
+            if (client) {
+                alert(`Editando cliente: ${client.name}`);
+                // Implement edit functionality
+            }
+        }
+
+        function viewClient(id) {
+            const client = clients.find(c => c.id === id);
+            if (client) {
+                const totalGastado = client.totalSpent || 0;
+                const totalFormateado = typeof totalGastado === 'number' ? totalGastado.toLocaleString('es-MX') : '0';
+                
+                alert(`Vista detallada de: ${client.nombre || 'N/A'}\n` +
+                      `Email: ${client.email || 'N/A'}\n` +
+                      `Teléfono: ${client.telefono || 'N/A'}\n` +
+                      `Total gastado: $${totalFormateado}`);
+            } else {
+                showNotification('No se encontró el cliente', 'error');
+            }
+        }
+
+        function deleteClient(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
+                const clientIndex = window.clients.findIndex(c => c.id === id);
+                if (clientIndex !== -1) {
+                    // Remove the client from the array
+                    window.clients.splice(clientIndex, 1);
+                    
+                    // Save the updated clients array
+                    saveClients();
+                    
+                    // Update the UI
+                    renderClients();
+                    updateStats();
+                    
+                    showNotification('Cliente eliminado correctamente', 'success');
+                } else {
+                    showNotification('No se pudo encontrar el cliente', 'error');
+                }
+            }
+        }
+
+        // Función para abrir el modal de cliente
+        function abrirModalCliente(clientId = null) {
+            console.log('Abriendo modal de cliente...');
+            const modal = document.getElementById('client-modal');
+            const modalTitle = document.getElementById('modal-title-text');
+            const form = document.getElementById('client-form');
+            
+            if (!modal) {
+                console.error('No se encontró el modal');
+                return;
+            }
+            
+            // Limpiar el formulario
+            if (!form) {
+                console.error('No se encontró el formulario');
+                return;
+            }
+            
+            try {
+                form.reset();
+                const idInput = form.querySelector('[name="id"]') || form.querySelector('#client-id');
+                if (idInput) {
+                    idInput.value = '';
+                } else {
+                    console.warn('No se encontró el campo de ID del cliente');
+                }
+            } catch (error) {
+                console.error('Error al limpiar el formulario:', error);
+            }
+            
+            if (clientId) {
+                // Modo edición - Cargar datos del cliente
+                const client = window.clients.find(c => c.id === clientId);
+                if (client) {
+                    if (modalTitle) modalTitle.textContent = 'Editar Cliente';
+                    // Llenar el formulario con los datos del cliente
+                    Object.keys(client).forEach(key => {
+                        if (form) {
+                            const input = form.querySelector(`[name="${key}"]`);
+                            if (input) {
+                                if (input.type === 'checkbox' || input.type === 'radio') {
+                                    input.checked = Boolean(client[key]);
+                                } else {
+                                    input.value = client[key] || '';
+                                }
+                            }
+                        }
+                    });
+                }
+            } else {
+                // Modo nuevo cliente
+                if (modalTitle) modalTitle.textContent = 'Nuevo Cliente';
+                // Establecer valores por defecto
+                if (form) {
+                    const statusInput = form.querySelector('[name="status"]');
+                    const tipoIdInput = form.querySelector('[name="tipo-identificacion"]');
+                    
+                    if (statusInput) statusInput.value = 'active';
+                    if (tipoIdInput) tipoIdInput.value = 'V';
+                }
+            }
+            
+            // Mostrar el modal
+            modal.classList.remove('hidden');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('overflow-hidden');
+            
+            // Enfocar el primer campo
+            if (form) {
+                const firstInput = form.querySelector('input:not([type="hidden"])');
+                if (firstInput) firstInput.focus();
+            }
+            
+            console.log('Modal abierto correctamente');
+        }
+        
+        // Hacer la función global
+        window.abrirModalCliente = abrirModalCliente;
+
+        // La función saveClient original (más arriba en el código) es la que se debe usar
+        // Esta función duplicada ha sido eliminada para evitar conflictos
+
+        // Navigation initialization is handled in the DOMContentLoaded event
+            
+            // Verificar que el botón y el modal funcionen
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnNuevoCliente = document.getElementById('nuevo-cliente-btn');
+            if (btnNuevoCliente) {
+                console.log('Botón de nuevo cliente encontrado');
+                btnNuevoCliente.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    abrirModalCliente();
+                });
+            } else {
+                console.error('No se encontró el botón de nuevo cliente');
+            }
+        });
+    </script>
+</body>
+</html>

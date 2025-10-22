@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Venta - Sistema de Gestión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+                <h1 class="text-2xl font-bold text-gray-900">Nueva Venta</h1>
+                <div id="exchangeRateInfo" class="mt-2 text-sm text-gray-600">
+                    <i class="fas fa-sync-alt fa-spin mr-1"></i> Cargando tasa de cambio...
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Client Info -->
+                <div class="md:col-span-1">
+                    <div class="bg-white shadow rounded-lg p-4">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Datos del Cliente</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Buscar Cliente</label>
+                                <div class="flex space-x-2">
+                                    <div class="relative flex-1">
+                                        <input type="text" id="clientSearch" class="w-full rounded-md border-gray-300 shadow-sm" placeholder="Nombre o RUC">
+                                        <button class="absolute right-2 top-2 text-gray-400">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                    <button id="showClientsBtn" class="px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm">
+                                        <i class="fas fa-users"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                                <input type="text" id="clientName" class="w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">RUC/Cédula</label>
+                                <input type="text" id="clientId" class="w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                                <input type="text" id="clientAddress" class="w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Document Info -->
+                    <div class="bg-white shadow rounded-lg p-4 mt-4">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Datos del Documento</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Comprobante</label>
+                                <select class="w-full rounded-md border-gray-300 shadow-sm">
+                                    <option>Factura</option>
+                                    <option>Boleta de Venta</option>
+                                    <option>Nota de Crédito</option>
+                                    <option>Nota de Débito</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Número</label>
+                                <input type="text" id="invoiceNumber" class="w-full rounded-md border-gray-300 shadow-sm bg-gray-100" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                                <input type="date" class="w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products and Cart -->
+                <div class="md:col-span-3">
+                    <!-- Search and Categories -->
+                    <div class="bg-white shadow rounded-lg p-4 mb-4">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="relative flex-1">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" id="productSearch" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Buscar productos...">
+                            </div>
+                            <div class="flex space-x-2 overflow-x-auto pb-1 categories-container">
+                                <!-- Categories will be added here by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Products Grid -->
+                    <div class="bg-white shadow rounded-lg p-4 mb-4">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Productos</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="productsGrid">
+                            <!-- Products will be loaded here -->
+                            <div class="col-span-full text-center py-8">
+                                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+                                <p class="text-gray-600">Cargando productos...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shopping Cart -->
+                    <div class="bg-white shadow rounded-lg p-4">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Detalle de la Venta</h2>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="cartItems">
+                                    <!-- Cart items will be loaded here -->
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                            No hay productos en el carrito
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Order Summary -->
+                        <div class="mt-6 border-t border-gray-200 pt-4">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700">Subtotal:</span>
+                                <span class="text-sm font-medium" id="subtotal">$0.00</span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700">Descuento:</span>
+                                <span class="text-sm font-medium" id="discount">$0.00</span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700">IVA 12%:</span>
+                                <span class="text-sm font-medium" id="tax">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-lg font-bold mt-4 pt-2 border-t border-gray-200">
+                                <span>Total:</span>
+                                <span id="total">$0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-6 flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
+                            <button class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                <i class="fas fa-times mr-2"></i>Cancelar
+                            </button>
+                            <button id="finalizeSaleBtn" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                                <i class="fas fa-check-circle mr-2"></i>Finalizar Venta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para mostrar la lista de clientes -->
+    <div id="clientsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-1/2 shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center pb-3">
+                <h3 class="text-xl font-semibold text-gray-900">Lista de Clientes</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mt-4">
+                <div class="relative">
+                    <input type="text" id="clientSearchModal" class="w-full mb-4 p-2 border rounded-md" placeholder="Buscar cliente...">
+                </div>
+                <div class="h-64 overflow-y-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RUC/Cédula</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dirección</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientsList" class="bg-white divide-y divide-gray-200">
+                            <!-- Los clientes se cargarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let products = [];
+        let cart = [];
+        let currentInvoiceNumber = 1;
+        
+        // Add event listener for showClientsBtn
+        document.addEventListener('DOMContentLoaded', function() {
+            const showClientsBtn = document.getElementById('showClientsBtn');
+            if (showClientsBtn) {
+                showClientsBtn.addEventListener('click', function() {
+                    console.log('Botón clickeado');
+                    showClientsModal();
+                });
+            } else {
+                console.error('No se encontró el botón showClientsBtn');
+            }
+        });
+
+        // Make showClientsModal globally accessible
+        window.showClientsModal = function() {
+            console.log('1. Función showClientsModal llamada');
+            const modal = document.getElementById('clientsModal');
+            if (!modal) {
+                console.error('2. ERROR: No se encontró el elemento del modal de clientes');
+                return;
+            }
+            console.log('3. Modal encontrado:', modal);
+            
+            const clientsList = document.getElementById('clientsList');
+            if (!clientsList) {
+                console.error('4. ERROR: No se encontró el elemento de la lista de clientes');
+                return;
+            }
+            console.log('5. Lista de clientes encontrada:', clientsList);
+            
+            console.log('6. Cargando clientes...');
+            const clients = loadClients();
+            console.log('7. Clientes cargados:', clients);
+            
+            // Limpiar lista actual
+            clientsList.innerHTML = '';
+            
+            // Si no hay clientes, mostrar mensaje
+            if (!clients || clients.length === 0) {
+                console.log('8. No hay clientes para mostrar');
+                clientsList.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                            No hay clientes registrados.
+                        </td>
+                    </tr>`;
+                console.log('9. Mostrando mensaje de "No hay clientes"');
+                modal.classList.remove('hidden');
+                console.log('10. Modal mostrado');
+                return;
+            }
+            
+            // Agregar clientes a la tabla
+            clients.forEach(client => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                
+                // Create a safe version of the client data for the onclick handler
+                const safeNombre = (client.nombre || '').replace(/'/g, "\\'");
+                const safeRuc = ((client.ruc || client.cedula) || '').replace(/'/g, "\\'");
+                const safeDireccion = (client.direccion || '').replace(/'/g, "\\'");
+                
+                // Create the row content using template literals
+                row.innerHTML = [
+                    `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${client.nombre || ''}</td>`,
+                    `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${client.ruc || client.cedula || ''}</td>`,
+                    `<td class="px-6 py-4 text-sm text-gray-500">${client.direccion || ''}</td>`,
+                    '<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">',
+                    `    <button onclick="selectClient('${safeNombre}', '${safeRuc}', '${safeDireccion}')" `,
+                    '        class="text-indigo-600 hover:text-indigo-900 mr-3">',
+                    '        Seleccionar',
+                    '    </button>',
+                    '</td>'
+                ].join('');
+                
+                clientsList.appendChild(row);
+            });
+            
+            // Mostrar el modal
+            modal.classList.remove('hidden');
+        };
+        
+        // Initialize invoice number from localStorage or start with FAC-00001
+        function initializeInvoiceNumber() {
+            const lastInvoiceNumber = localStorage.getItem('lastInvoiceNumber');
+            if (!lastInvoiceNumber) {
+                // If no invoice number exists, start with FAC-00001
+                localStorage.setItem('lastInvoiceNumber', 'FAC-00001');
+                currentInvoiceNumber = 1;
+            } else {
+                // Extract the numeric part from the last invoice number
+                const match = lastInvoiceNumber.match(/\d+$/);
+                if (match) {
+                    currentInvoiceNumber = parseInt(match[0]);
+                }
+            }
+        }
+
+        // Function to refresh products and update the UI
+        function refreshProducts() {
+            console.log('Actualizando lista de productos...');
+            loadProducts();
+            showMessage('Lista de productos actualizada', 'info');
+        }
+
+        // Function to get the current invoice number without incrementing
+        function getCurrentInvoiceNumber() {
+            const lastInvoiceNumber = localStorage.getItem('lastInvoiceNumber');
+            return lastInvoiceNumber || 'FAC-00001';
+        }
+        
+        // Function to generate the next invoice number (only call this when a sale is completed)
+        function generateNextInvoiceNumber() {
+            // Get current invoice number
+            const currentNumber = getCurrentInvoiceNumber();
+            
+            // Extract the numeric part and increment
+            const match = currentNumber.match(/\d+$/);
+            if (match) {
+                currentInvoiceNumber = parseInt(match[0]) + 1;
+                
+                // Format and save the new invoice number to localStorage
+                const newNumber = 'FAC-' + String(currentInvoiceNumber).padStart(5, '0');
+                localStorage.setItem('lastInvoiceNumber', newNumber);
+                
+                return newNumber;
+            }
+            
+            return currentNumber;
+        }
+        
+        // Function to generate and print delivery note
+        function generateDeliveryNote(saleData) {
+            // Create a new window for printing
+            const printWindow = window.open('', '_blank');
+            
+            // Get current date
+            const today = new Date();
+            const formattedDate = today.toLocaleDateString('es-VE', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            // Calculate totals
+            const subtotal = saleData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const iva = subtotal * 0.16; // 16% IVA
+            const total = subtotal + iva;
+            
+            // Generate the HTML for the delivery note
+            const deliveryNoteHTML = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Nota de Entrega ${saleData.invoiceNumber}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+                    .header { text-align: center; margin-bottom: 20px; }
+                    .header h1 { margin: 0; font-size: 24px; }
+                    .header p { margin: 5px 0; }
+                    .info { margin-bottom: 20px; }
+                    .info div { margin-bottom: 5px; }
+                    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                    th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                    .text-right { text-align: right; }
+                    .signature { margin-top: 50px; }
+                    .signature div { display: inline-block; width: 45%; }
+                    .signature .right { text-align: right; }
+                    .no-print { margin-top: 20px; text-align: center; }
+                    .print-button {
+                        padding: 10px 20px;
+                        background: #4CAF50;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        margin: 0 5px;
+                    }
+                    .close-button {
+                        padding: 10px 20px;
+                        background: #f44336;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        margin: 0 5px;
+                    }
+                    .note { margin-top: 20px; font-style: italic; text-align: center; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>NOTA DE ENTREGA</h1>
+                    <p><strong>N°:</strong> ${saleData.invoiceNumber}</p>
+                    <p><strong>Fecha:</strong> ${formattedDate}</p>
+                </div>
+                
+                <div class="info">
+                    <div><strong>Cliente:</strong> ${saleData.clientName || 'Cliente ocasional'}</div>
+                    <div><strong>RIF/C.I.:</strong> ${saleData.clientId || 'No especificado'}</div>
+                    <div><strong>Dirección:</strong> ${saleData.clientAddress || 'No especificada'}</div>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unit.</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${saleData.items.map(item => `
+                            <tr>
+                                <td>${item.name || 'Producto'}</td>
+                                <td>${item.quantity || 0}</td>
+                                <td>Bs. ${(item.price || 0).toFixed(2)}</td>
+                                <td>Bs. ${((item.price || 0) * (item.quantity || 0)).toFixed(2)}</td>
+                            </tr>`).join('')}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-right"><strong>Subtotal:</strong></td>
+                            <td>Bs. ${subtotal.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-right"><strong>IVA (16%):</strong></td>
+                            <td>Bs. ${iva.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-right"><strong>TOTAL:</strong></td>
+                            <td><strong>Bs. ${total.toFixed(2)}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                
+                <div class="signature">
+                    <div>
+                        <p>__________________________</p>
+                        <p>Firma del Cliente</p>
+                    </div>
+                    <div class="right">
+                        <p>__________________________</p>
+                        <p>Firma del Vendedor</p>
+                    </div>
+                </div>
+                
+                <div class="note">
+                    <p>Nota: Este es un documento generado automáticamente.</p>
+                </div>
+                
+                <div class="no-print">
+                    <button onclick="window.print()" class="print-button">
+                        <i class="fas fa-print"></i> Imprimir Nota de Entrega
+                    </button>
+                    <button onclick="window.close()" class="close-button">
+                        Cerrar
+                    </button>
+                </div>
+                
+                <script>
+                    // Auto-print when the window loads
+                    window.onload = function() {
+                        setTimeout(function() {
+                            window.print();
+                        }, 500);
+                    };
+                </script>
+            </body>
+            </html>`;
+
+            // Write the HTML to the print window
+            printWindow.document.open();
+            printWindow.document.write(deliveryNoteHTML);
+            printWindow.document.close();
+            
+            // Focus the print window
+            printWindow.focus();
+        }
+        
+        // Function to update the invoice number display
+        function updateInvoiceNumber() {
+            const invoiceNumberInput = document.getElementById('invoiceNumber');
+            if (invoiceNumberInput) {
+                invoiceNumberInput.value = getCurrentInvoiceNumber();
+            }
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM completamente cargado');
+            
+            // Initialize and set up invoice number
+            initializeInvoiceNumber();
+            updateInvoiceNumber();
+            
+            // Debug: Show current invoice number
+            console.log('Número de factura actual:', getCurrentInvoiceNumber());
+            
+            // First load products
+            console.log('Cargando productos...');
+            loadProducts();
+            
+            // Setup event listeners
+            console.log('Configurando event listeners...');
+            setupEventListeners();
+            
+            // Listen for storage events (when inventory is updated in another tab)
+            window.addEventListener('storage', function(event) {
+                console.log('Evento de almacenamiento detectado:', event);
+                if (event.key === 'products') {
+                    console.log('Cambios detectados en los productos, actualizando...');
+                    refreshProducts();
+                }
+            });
+            
+            // Show welcome message
+            showMessage('Bienvenido al módulo de ventas', 'success');
+            
+            // Debug: Force refresh after a short delay to ensure everything is loaded
+            setTimeout(() => {
+                console.log('Actualización forzada de productos...');
+                refreshProducts();
+            }, 1000);
+        });
+
+        // Load products from localStorage (inventory system)
+        function loadProducts() {
+            try {
+                console.log('Buscando productos en localStorage...');
+                // Show loading state
+                const productsGrid = document.getElementById('productsGrid');
+                if (productsGrid) {
+                    productsGrid.innerHTML = `
+                        <div class="col-span-full text-center py-8">
+                            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+                            <p class="text-gray-600">Cargando productos...</p>
+                        </div>`;
+                }
+                
+                // Try to load from localStorage
+                const productsData = localStorage.getItem('products');
+                console.log('Datos de productos en localStorage:', productsData);
+                
+                if (productsData) {
+                    const parsedData = JSON.parse(productsData);
+                    console.log('Datos parseados:', parsedData);
+                    
+                    // Check if we have an array of products or an object with a products property
+                    if (Array.isArray(parsedData)) {
+                        products = parsedData;
+                    } else if (parsedData && Array.isArray(parsedData.products)) {
+                        products = parsedData.products;
+                    } else if (typeof parsedData === 'object' && parsedData !== null) {
+                        // Handle case where it's a single product object
+                        products = [parsedData];
+                    } else {
+                        products = [];
+                    }
+                    
+                    console.log('Productos cargados:', products);
+                    renderProducts(products);
+                    updateCategories();
+                } else {
+                    console.warn('No se encontraron productos en localStorage');
+                    products = [];
+                    renderProducts(products);
+                    updateCategories();
+                    showMessage('No se encontraron productos en el inventario. Por favor, agregue productos primero.', 'info');
+                }
+                
+                if (inventoryData) {
+                    console.log(`Cargando datos desde la clave: ${sourceKey}`);
+                    try {
+                        const parsedData = JSON.parse(inventoryData);
+                        console.log('Datos del inventario parseados:', parsedData);
+                        
+                        // Check if we have an object with a products array or if it's directly the array
+                        if (parsedData && Array.isArray(parsedData.products)) {
+                            products = parsedData.products;
+                            console.log('Productos encontrados en parsedData.products:', products);
+                        } else if (Array.isArray(parsedData)) {
+                            products = parsedData;
+                            console.log('Productos encontrados como array directo:', products);
+                        } else if (parsedData && typeof parsedData === 'object') {
+                            // Handle case where inventoryData is a single product object
+                            products = [inventoryData];
+                            console.log('Producto único encontrado:', products);
+                        } else {
+                            console.error('Formato de datos de inventario no reconocido:', inventoryData);
+                            products = [];
+                            showMessage('Formato de datos de inventario no reconocido', 'error');
+                            renderProducts(products);
+                            updateCategories();
+                            return;
+                        }
+                        
+                        console.log(`Se encontraron ${products.length} productos en el inventario`);
+                        
+                        if (products.length === 0) {
+                            console.warn('El inventario está vacío');
+                            showMessage('No hay productos en el inventario. Por favor, agregue productos primero desde el módulo de inventario.', 'info');
+                            renderProducts([]);
+                            updateCategories();
+                            return;
+                        }
+                        
+                        // Map inventory products to sales format
+                        const processedProducts = products.map((product, index) => {
+                            // Debug log para ver los datos originales
+                            console.log('Procesando producto:', {
+                                id: product.id,
+                                name: product.name || product.nombre,
+                                price: product.price,
+                                precioVenta: product.precioVenta,
+                                precio: product.precio,
+                                cost: product.cost,
+                                costo: product.costo
+                            });
+                            
+                            // Debug: Mostrar todas las propiedades del producto
+                            console.log('Propiedades del producto:', Object.keys(product));
+                            
+                            // Calcular el precio de venta
+                            let precioVenta = 0;
+                            
+                            // Verificar los diferentes campos de precio posibles
+                            if (typeof product.price === 'number' && product.price > 0) {
+                                precioVenta = product.price;
+                                console.log('Usando product.price:', precioVenta);
+                            } else if (typeof product.priceDc === 'number' && product.priceDc > 0) {
+                                precioVenta = product.priceDc;
+                                console.log('Usando product.priceDc:', precioVenta);
+                            } else if (typeof product.priceMl === 'number' && product.priceMl > 0) {
+                                precioVenta = product.priceMl;
+                                console.log('Usando product.priceMl:', precioVenta);
+                            } else if (product.precioVenta) {
+                                precioVenta = parseFloat(product.precioVenta) || 0;
+                                console.log('Usando product.precioVenta:', precioVenta);
+                            } else if (product.precio) {
+                                precioVenta = parseFloat(product.precio) || 0;
+                                console.log('Usando product.precio:', precioVenta);
+                            } else {
+                                console.warn('No se encontró un precio válido para el producto:', product);
+                            }
+                            
+                            // Calcular el costo
+                            let costo = 0;
+                            if (product.cost) {
+                                costo = parseFloat(product.cost);
+                            } else if (product.costo) {
+                                costo = parseFloat(product.costo);
+                            }
+                            
+                            console.log('Precio calculado:', precioVenta);
+                            
+                            return {
+                                id: product.id || `temp-${Math.random().toString(36).substr(2, 9)}`,
+                                code: product.internalCode || product.code || `CODE-${index + 1}`,
+                                name: product.name || product.nombre || 'Sin nombre',
+                                description: product.description || product.descripcion || '',
+                                price: precioVenta,
+                                cost: costo,
+                                stock: parseInt(product.stock || product.existencia || 0, 10),
+                                category: product.category || product.categoria || 'Sin categoría',
+                                barcode: product.barcode || product.codigoBarras || '',
+                                iva: parseFloat(product.iva || 0),
+                                discount: parseFloat(product.discount || product.descuento || 0),
+                                marca: product.marca || ''
+                            };
+                        });
+                        
+                        products = processedProducts;
+                        console.log('Productos procesados para ventas:', products);
+                        
+                        // Render the products
+                        renderProducts(products);
+                        
+                        // Update categories
+                        updateCategories();
+                        
+                    } catch (parseError) {
+                        console.error('Error al procesar los datos del inventario:', parseError);
+                        showMessage('Error al procesar los datos del inventario', 'error');
+                        products = [];
+                        renderProducts(products);
+                        updateCategories();
+                    }
+                    
+                } else {
+                    console.warn('No se encontró el ítem "inventoryProducts" en localStorage');
+                    products = [];
+                    renderProducts(products);
+                    updateCategories();
+                    showMessage('No se encontraron productos en el inventario. Por favor, agregue productos primero desde el módulo de inventario.', 'info');
+                }
+            } catch (error) {
+                console.error('Error al cargar los productos:', error);
+                showMessage('Error al cargar los productos: ' + error.message, 'error');
+                products = [];
+                renderProducts(products);
+                updateCategories();
+            }
+        }
+        
+        // Cargar clientes desde localStorage
+        function loadClients() {
+            try {
+                console.log('Buscando clientes en localStorage...');
+                const clientsData = localStorage.getItem('clients');
+                console.log('Datos de clientes encontrados:', clientsData);
+                const clients = clientsData ? JSON.parse(clientsData) : [];
+                console.log('Clientes cargados:', clients);
+                return clients;
+            } catch (error) {
+                console.error('Error al cargar clientes:', error);
+                return [];
+            }
+        }
+
+        // Make showClientsModal globally accessible
+        window.showClientsModal = function() {
+            console.log('1. Función showClientsModal llamada');
+            const modal = document.getElementById('clientsModal');
+            if (!modal) {
+                console.error('2. ERROR: No se encontró el elemento del modal de clientes');
+                return;
+            }
+            console.log('3. Modal encontrado:', modal);
+            
+            const clientsList = document.getElementById('clientsList');
+            if (!clientsList) {
+                console.error('4. ERROR: No se encontró el elemento de la lista de clientes');
+                return;
+            }
+            console.log('5. Lista de clientes encontrada:', clientsList);
+            
+            console.log('6. Cargando clientes...');
+            const clients = loadClients();
+            console.log('7. Clientes cargados:', clients);
+            
+            // Limpiar lista actual
+            clientsList.innerHTML = '';
+            
+            // Si no hay clientes, mostrar mensaje
+            if (!clients || clients.length === 0) {
+                console.log('8. No hay clientes para mostrar');
+                clientsList.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                            No hay clientes registrados.
+                        </td>
+                    </tr>`;
+                console.log('9. Mostrando mensaje de "No hay clientes"');
+                modal.classList.remove('hidden');
+                console.log('10. Modal mostrado');
+                return;
+            }
+            
+            // Agregar clientes a la tabla
+            clients.forEach(client => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                
+                // Create a safe version of the client data for the onclick handler
+                const safeNombre = (client.nombre || '').replace(/'/g, "\\'");
+                const safeRuc = ((client.ruc || client.cedula) || '').replace(/'/g, "\\'");
+                const safeDireccion = (client.direccion || '').replace(/'/g, "\\'");
+                
+                // Create the row content using template literals
+                row.innerHTML = [
+                    `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${client.nombre || ''}</td>`,
+                    `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${client.ruc || client.cedula || ''}</td>`,
+                    `<td class="px-6 py-4 text-sm text-gray-500">${client.direccion || ''}</td>`,
+                    '<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">',
+                    `    <button onclick="selectClient('${safeNombre}', '${safeRuc}', '${safeDireccion}')" `,
+                    '        class="text-indigo-600 hover:text-indigo-900 mr-3">',
+                    '        Seleccionar',
+                    '    </button>',
+                    '</td>'
+                ].join('');
+                
+                clientsList.appendChild(row);
+            });
+            
+            // Mostrar el modal
+            modal.classList.remove('hidden');
+        }
+        
+        // Seleccionar un cliente y actualizar los campos
+        function selectClient(nombre, ruc, direccion) {
+            document.getElementById('clientName').value = nombre || '';
+            document.getElementById('clientId').value = ruc || '';
+            document.getElementById('clientAddress').value = direccion || '';
+            
+            // Cerrar el modal
+            document.getElementById('clientsModal').classList.add('hidden');
+            
+            // Mostrar mensaje de éxito
+            showMessage('Cliente seleccionado correctamente', 'success');
+        }
+        
+        // Cerrar el modal al hacer clic en la X
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM completamente cargado, configurando eventos...');
+            
+            const modal = document.getElementById('clientsModal');
+            const closeBtn = document.getElementById('closeModal');
+            const showBtn = document.getElementById('showClientsBtn');
+            const clientSearchModal = document.getElementById('clientSearchModal');
+            
+            console.log('Elementos del modal:', {modal, closeBtn, showBtn, clientSearchModal});
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    console.log('Cerrando modal...');
+                    modal.classList.add('hidden');
+                });
+            } else {
+                console.warn('No se encontró el botón de cerrar el modal');
+            }
+            
+            if (showBtn) {
+                console.log('Configurando evento click para mostrar clientes...');
+                // Remove any existing event listeners to prevent duplicates
+                showBtn.replaceWith(showBtn.cloneNode(true));
+                const newShowBtn = document.getElementById('showClientsBtn');
+                newShowBtn.addEventListener('click', function(e) {
+                    console.log('Botón de mostrar clientes clickeado', e);
+                    showClientsModal();
+                });
+            } else {
+                console.error('No se encontró el botón de mostrar clientes');
+            }
+            
+            // Cerrar el modal al hacer clic fuera del contenido
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+            
+            // Buscar clientes mientras se escribe
+            if (clientSearchModal) {
+                clientSearchModal.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('#clientsList tr');
+                    
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        if (text.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+
+        // Show notification message
+        function showMessage(message, type = 'info') {
+            // Remove any existing messages
+            const existingAlert = document.querySelector('.alert-message');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            if (!message) return;
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert-message fixed top-4 right-4 p-4 rounded-md shadow-lg ${
+                type === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
+                type === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :
+                'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+            }`;
+            
+            alertDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${
+                        type === 'error' ? 'fa-exclamation-circle' :
+                        type === 'success' ? 'fa-check-circle' : 'fa-info-circle'
+                    } mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 5000);
+        }
+        
+        // Update category filters
+        function updateCategories() {
+            const categoriesContainer = document.querySelector('.categories-container');
+            if (!categoriesContainer) return;
+            
+            // Get unique categories
+            const categories = [...new Set(products.map(p => p.category))];
+            
+            let html = `
+                <button class="px-3 py-1 bg-indigo-600 text-white text-sm rounded-full whitespace-nowrap active-category" data-category="">
+                    Todos
+                </button>`;
+                
+            categories.forEach(category => {
+                html += `
+                <button class="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full whitespace-nowrap hover:bg-gray-300" data-category="${category}">
+                    ${category}
+                </button>`;
+            });
+            
+            categoriesContainer.innerHTML = html;
+            
+            // Add event listeners to category buttons
+            document.querySelectorAll('.categories-container button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    filterByCategory(category);
+                    
+                    // Update active state
+                    document.querySelectorAll('.categories-container button').forEach(btn => {
+                        btn.classList.remove('bg-indigo-600', 'text-white');
+                        btn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    });
+                    this.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    this.classList.add('bg-indigo-600', 'text-white');
+                });
+            });
+        }
+        
+        // Filter products by category
+        function filterByCategory(category) {
+            if (!category) {
+                renderProducts(products);
+                return;
+            }
+            
+            const filtered = products.filter(p => p.category === category);
+            renderProducts(filtered);
+        }
+
+        function setupEventListeners() {
+            // Search functionality
+            const searchInput = document.getElementById('productSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    filterProducts(e.target.value);
+                });
+            }
+
+            // Category filter
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const category = button.getAttribute('data-category');
+                    filterByCategory(category);
+                });
+            });
+            
+            // Finalize sale button
+            const finalizeBtn = document.getElementById('finalizeSaleBtn');
+            if (finalizeBtn) {
+                finalizeBtn.addEventListener('click', () => {
+                    if (cart.length === 0) {
+                        showMessage('El carrito está vacío', 'error');
+                        return;
+                    }
+                    
+                    // Get current invoice number before generating the next one
+                    const currentInvoiceNumber = getCurrentInvoiceNumber();
+                    
+                    // Prepare sale data for the delivery note
+                    const saleData = {
+                        invoiceNumber: currentInvoiceNumber,
+                        date: new Date(),
+                        items: cart.map(item => ({
+                            name: item.name,
+                            quantity: item.quantity,
+                            price: item.price,
+                            total: item.price * item.quantity
+                        })),
+                        client: document.getElementById('clientSearch')?.value || 'Consumidor Final'
+                    };
+                    
+                    // Generate next invoice number for the next sale
+                    generateNextInvoiceNumber();
+                    
+                    // Show success message
+                    showMessage('Venta finalizada correctamente', 'success');
+                    
+                    // Generate and show delivery note
+                    generateDeliveryNote(saleData);
+                    
+                    // Clear the cart
+                    cart = [];
+                    updateCart();
+                    
+                    // Update the displayed invoice number for the next sale
+                    updateInvoiceNumber();
+                });
+            }
+        }
+
+        function renderProducts(productsToRender) {
+            const productsGrid = document.getElementById('productsGrid');
+            if (!productsGrid) {
+                console.error('No se encontró el elemento productsGrid');
+                return;
+            }
+            
+            console.log('Renderizando productos:', productsToRender);
+
+            // Show all products by default if no filter is applied
+            if (!productsToRender || productsToRender.length === 0) {
+                productsGrid.innerHTML = `
+                    <div class="col-span-full text-center py-12 px-4">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+                            <i class="fas fa-exclamation-circle text-red-500 text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">No se encontraron productos</h3>
+                        <p class="text-gray-600 mb-6 max-w-md mx-auto">No hay productos disponibles en el inventario o no coinciden con su búsqueda.</p>
+                        <div class="space-y-3">
+                            <button onclick="window.location.href='inventario.html'" 
+                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <i class="fas fa-plus-circle mr-2"></i> Agregar productos al inventario
+                            </button>
+                            <p class="text-sm text-gray-500">o</p>
+                            <button onclick="location.reload()" 
+                                    class="text-indigo-600 hover:text-indigo-800 font-medium text-sm">
+                                <i class="fas fa-sync-alt mr-1"></i> Reintentar
+                            </button>
+                        </div>
+                    </div>`;
+                return;
+            }
+            
+            // Tasa de cambio (puedes hacerla dinámica si lo deseas)
+            const exchangeRate = 36.50; // 1 USD = 36.50 Bs. (ajusta según necesites)
+            
+            const formatPrice = (price, isUSD = false) => {
+                if (price === undefined || price === null) return '0.00';
+                let num = typeof price === 'string' ? parseFloat(price) : price;
+                if (isNaN(num)) return '0.00';
+                
+                // Si es USD, convertir de Bs. a USD
+                if (isUSD) {
+                    num = num / exchangeRate;
+                }
+                return num.toFixed(2);
+            };
+            
+            // Actualizar la tasa de cambio en la interfaz si existe el elemento
+            const exchangeRateElement = document.getElementById('exchangeRateInfo');
+            if (exchangeRateElement) {
+                exchangeRateElement.textContent = `Tasa de cambio: 1 USD = ${exchangeRate.toFixed(2)} Bs.`;
+            }
+            
+            let html = '';
+            productsToRender.forEach(product => {
+                // Asegurarse de que el precio sea un número
+                const precio = typeof product.price === 'number' ? product.price : 
+                             (typeof product.price === 'string' ? parseFloat(product.price) || 0 : 0);
+                
+                const costo = typeof product.cost === 'number' ? product.cost : 
+                            (typeof product.cost === 'string' ? parseFloat(product.cost) || 0 : 0);
+                
+                console.log(`Renderizando producto ${product.id || 'sin-id'}:`, {
+                    nombre: product.name,
+                    precio: precio,
+                    costo: costo,
+                    stock: product.stock
+                });
+
+                // Usar comillas simples para el ID del producto en el evento onclick
+                const productId = product.id ? product.id.replace(/'/g, "\\'") : '';
+                
+                html += `
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-medium text-gray-900">${product.name || 'Sin nombre'}</h3>
+                                <p class="text-sm text-gray-500">Código: ${product.code || 'N/A'}</p>
+                                <p class="text-sm text-gray-500">Stock: ${product.stock || 0}</p>
+                            </div>
+                            <div class="text-right">
+                                ${costo > 0 ? `
+                                <p class="text-sm text-gray-500 line-through">
+                                    Bs. ${formatPrice(costo)}
+                                </p>` : ''}
+                                <div class="flex flex-col items-end">
+                                    <span class="text-lg font-bold text-gray-900">
+                                        Bs. ${formatPrice(precio)}
+                                    </span>
+                                    <span class="text-sm text-gray-500">
+                                        ($${formatPrice(precio, true)} USD)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="addToCart('${productId}')" 
+                                class="mt-3 w-full bg-indigo-600 text-white py-2 px-4 rounded-md text-sm hover:bg-indigo-700">
+                            <i class="fas fa-cart-plus mr-2"></i>Agregar
+                        </button>
+                    </div>
+                </div>`;
+            });
+            });
+            
+            productsGrid.innerHTML = html;
+        }
+
+        function filterProducts(searchTerm) {
+            if (!searchTerm || searchTerm.trim() === '') {
+                // Show all products when search is cleared
+                renderProducts(products);
+                return;
+            }
+            
+            const filtered = products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm) || 
+                product.code.toLowerCase().includes(searchTerm)
+            );
+            
+            renderProducts(filtered);
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                if (existingItem.quantity < product.stock) {
+                    existingItem.quantity += 1;
+                } else {
+                    alert('No hay suficiente stock disponible');
+                    return;
+                }
+            } else {
+                cart.push({
+                    id: product.id,
+                    code: product.code,
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1
+                });
+            }
+            
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById('cartItems');
+            const subtotalEl = document.getElementById('subtotal');
+            const taxEl = document.getElementById('tax');
+            const totalEl = document.getElementById('total');
+            
+            if (!cartItems || !subtotalEl || !taxEl || !totalEl) return;
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            No hay productos en el carrito
+                        </td>
+                    </tr>`;
+                
+                subtotalEl.textContent = '$0.00';
+                taxEl.textContent = '$0.00';
+                totalEl.textContent = '$0.00';
+                return;
+            }
+            
+            // Update cart items
+            let html = '';
+            let subtotal = 0;
+            
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                
+                html += `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${item.name}</div>
+                        <div class="text-sm text-gray-500">${item.code}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        $${item.price.toFixed(2)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <button onclick="updateQuantity(${index}, ${item.quantity - 1})" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" 
+                                   value="${item.quantity}" 
+                                   min="1" 
+                                   class="w-16 mx-2 text-center border-gray-300 rounded-md" 
+                                   onchange="updateQuantityFromInput(${index}, this)"
+                                   onblur="this.value = Math.max(1, parseInt(this.value) || 1); updateQuantity(${index}, Math.max(1, parseInt(this.value) || 1))">
+                            <button onclick="updateQuantity(${index}, ${item.quantity + 1})" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        $${itemTotal.toFixed(2)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="removeFromCart(${index})" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            });
+            
+            cartItems.innerHTML = html;
+            
+            // Calculate totals
+            const tax = subtotal * 0.12; // 12% IVA
+            const total = subtotal + tax;
+            
+            // Update summary
+            subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+            taxEl.textContent = `$${tax.toFixed(2)}`;
+            totalEl.textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Function to update quantity from input field
+        function updateQuantityFromInput(index, input) {
+            const newQuantity = Math.max(1, parseInt(input.value) || 1);
+            input.value = newQuantity;
+            updateQuantity(index, newQuantity);
+        }
+
+        function updateQuantity(index, newQuantity) {
+            if (isNaN(newQuantity) || newQuantity < 1) {
+                newQuantity = 1;
+            }
+            
+            const productId = cart[index].id;
+            const product = products.find(p => p.id === productId);
+            
+            if (newQuantity > (product?.stock || 0)) {
+                alert('No hay suficiente stock disponible');
+                return;
+            }
+            
+            cart[index].quantity = newQuantity;
+            updateCart();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - ERP System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="bg-indigo-800 text-white w-64 flex-shrink-0">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold">ERP System</h1>
+                <p class="text-indigo-200 text-sm">Configuración del Sistema</p>
+            </div>
+            <nav class="mt-6">
+                <a href="index.html" class="block py-2.5 px-4 text-indigo-200 hover:bg-indigo-700 rounded mx-2 mb-1">
+                    <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                </a>
+                <a href="ventas.html" class="block py-2.5 px-4 text-indigo-200 hover:bg-indigo-700 rounded mx-2 mb-1">
+                    <i class="fas fa-shopping-cart mr-2"></i>Ventas
+                </a>
+                <a href="clientes.html" class="block py-2.5 px-4 text-indigo-200 hover:bg-indigo-700 rounded mx-2 mb-1">
+                    <i class="fas fa-users mr-2"></i>Clientes
+                </a>
+                <a href="inventario.html" class="block py-2.5 px-4 text-indigo-200 hover:bg-indigo-700 rounded mx-2 mb-1">
+                    <i class="fas fa-boxes mr-2"></i>Inventario
+                </a>
+                <a href="facturacion.html" class="block py-2.5 px-4 text-indigo-200 hover:bg-indigo-700 rounded mx-2 mb-1">
+                    <i class="fas fa-file-invoice-dollar mr-2"></i>Facturación
+                </a>
+                <a href="compras.html" class="block py-2.5 px-4 text-indigo-200 hover:bg-indigo-700 rounded mx-2 mb-1">
+                    <i class="fas fa-shopping-bag mr-2"></i>Compras
+                </a>
+                <a href="reportes.html" class="block py-2.5 px-4 text-indigo-200 hover:bg-indigo-700 rounded mx-2 mb-1">
+                    <i class="fas fa-chart-bar mr-2"></i>Reportes
+                </a>
+                <a href="configuracion.html" class="block py-2.5 px-4 bg-indigo-900 text-white rounded mx-2 mb-1">
+                    <i class="fas fa-cog mr-2"></i>Configuración
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow">
+                <div class="flex justify-between items-center p-4">
+                    <div class="flex items-center">
+                        <h2 class="text-xl font-semibold text-gray-800">Configuración del Sistema</h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center">
+                            <i class="fas fa-save mr-2"></i> Guardar Cambios
+                        </button>
+                        <div class="flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Usuario+Admin" alt="Usuario" class="w-8 h-8 rounded-full mr-2">
+                            <span class="text-sm font-medium">Usuario Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Settings Content -->
+            <main class="p-6">
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <!-- Tabs -->
+                    <div class="border-b border-gray-200
+                    <nav class="flex -mb-px">
+                        <button data-tab="general" class="tab-button border-b-2 border-indigo-500 text-indigo-600 px-4 py-4 text-sm font-medium">
+                            General
+                        </button>
+                        <button data-tab="empresa" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 px-4 py-4 text-sm font-medium">
+                            Empresa
+                        </button>
+                        <button data-tab="facturacion" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 px-4 py-4 text-sm font-medium">
+                            Facturación
+                        </button>
+                        <button data-tab="usuarios" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 px-4 py-4 text-sm font-medium">
+                            Usuarios
+                        </button>
+                        <button data-tab="backup" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 px-4 py-4 text-sm font-medium">
+                            Copias de Seguridad
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="p-6">
+                    <!-- General Tab -->
+                    <div id="general-tab" class="tab-content">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Configuración General</h3>
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div>
+                                <label for="language" class="block text-sm font-medium text-gray-700">Idioma</label>
+                                <select id="language" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                    <option>Español</option>
+                                    <option>English</option>
+                                    <option>Português</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="timezone" class="block text-sm font-medium text-gray-700">Zona Horaria</label>
+                                <select id="timezone" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                    <option>America/Mexico_City (UTC-6)</option>
+                                    <option>America/New_York (UTC-5)</option>
+                                    <option>America/Chicago (UTC-6)</option>
+                                    <option>America/Denver (UTC-7)</option>
+                                    <option>America/Los_Angeles (UTC-8)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="date-format" class="block text-sm font-medium text-gray-700">Formato de Fecha</label>
+                                <select id="date-format" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                    <option>DD/MM/YYYY</option>
+                                    <option>MM/DD/YYYY</option>
+                                    <option>YYYY-MM-DD</option>
+                                    <option>D [de] MMMM [de] YYYY</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="currency" class="block text-sm font-medium text-gray-700">Moneda</label>
+                                <select id="currency" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                    <option>MXN - Peso Mexicano ($)</option>
+                                    <option>USD - Dólar Estadounidense ($)</option>
+                                    <option>EUR - Euro (€)</option>
+                                    <option>GBP - Libra Esterlina (£)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" checked>
+                                <span class="ml-2 text-sm text-gray-700">Activar notificaciones por correo electrónico</span>
+                            </label>
+                            <label class="flex items-center mt-2">
+                                <input type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" checked>
+                                <span class="ml-2 text-sm text-gray-700">Activar recordatorios automáticos</span>
+                            </label>
+                            <label class="flex items-center mt-2">
+                                <input type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">Modo oscuro</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Company Tab (Hidden by default) -->
+                    <div id="empresa-tab" class="tab-content hidden">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Información de la Empresa</h3>
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div class="sm:col-span-2">
+                                <label for="company-name" class="block text-sm font-medium text-gray-700">Nombre de la Empresa</label>
+                                <input type="text" id="company-name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="Mi Empresa S.A. de C.V.">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="company-address" class="block text-sm font-medium text-gray-700">Dirección</label>
+                                <input type="text" id="company-address" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="Av. Principal #123, Col. Centro">
+                            </div>
+                            <div>
+                                <label for="company-city" class="block text-sm font-medium text-gray-700">Ciudad</label>
+                                <input type="text" id="company-city" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="Ciudad de México">
+                            </div>
+                            <div>
+                                <label for="company-state" class="block text-sm font-medium text-gray-700">Estado</label>
+                                <input type="text" id="company-state" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="CDMX">
+                            </div>
+                            <div>
+                                <label for="company-zip" class="block text-sm font-medium text-gray-700">Código Postal</label>
+                                <input type="text" id="company-zip" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="06000">
+                            </div>
+                            <div>
+                                <label for="company-country" class="block text-sm font-medium text-gray-700">País</label>
+                                <input type="text" id="company-country" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="México">
+                            </div>
+                            <div>
+                                <label for="company-phone" class="block text-sm font-medium text-gray-700">Teléfono</label>
+                                <input type="tel" id="company-phone" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="+52 55 1234 5678">
+                            </div>
+                            <div>
+                                <label for="company-email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+                                <input type="email" id="company-email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="contacto@miempresa.com">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="company-website" class="block text-sm font-medium text-gray-700">Sitio Web</label>
+                                <input type="url" id="company-website" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="https://www.miempresa.com">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="company-tax-id" class="block text-sm font-medium text-gray-700">RFC</label>
+                                <input type="text" id="company-tax-id" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="MEM123456ABC">
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <label class="block text-sm font-medium text-gray-700">Logo de la Empresa</label>
+                            <div class="mt-1 flex items-center">
+                                <span class="h-12 w-12 rounded-full overflow-hidden bg-gray-100">
+                                    <svg class="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                </span>
+                                <button type="button" class="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Cambiar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Billing Tab (Hidden by default) -->
+                    <div id="facturacion-tab" class="tab-content hidden">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Configuración de Facturación</h3>
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div>
+                                <label for="invoice-prefix" class="block text-sm font-medium text-gray-700">Prefijo de Factura</label>
+                                <input type="text" id="invoice-prefix" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="FAC">
+                            </div>
+                            <div>
+                                <label for="invoice-start" class="block text-sm font-medium text-gray-700">Número de Inicio</label>
+                                <input type="number" id="invoice-start" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="1001">
+                            </div>
+                            <div>
+                                <label for="tax-rate" class="block text-sm font-medium text-gray-700">Tasa de IVA (%)</label>
+                                <input type="number" id="tax-rate" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="16.00">
+                            </div>
+                            <div>
+                                <label for="invoice-terms" class="block text-sm font-medium text-gray-700">Términos de Pago (días)</label>
+                                <input type="number" id="invoice-terms" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" value="15">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="invoice-notes" class="block text-sm font-medium text-gray-700">Notas de Factura</label>
+                                <textarea id="invoice-notes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">Gracias por su preferencia. Pague dentro de 15 días para evitar cargos por mora.</textarea>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="invoice-footer" class="block text-sm font-medium text-gray-700">Pie de Página</label>
+                                <textarea id="invoice-footer" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">Mi Empresa S.A. de C.V. - Todos los derechos reservados</textarea>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <h4 class="text-md font-medium text-gray-900 mb-2">Firma Digital</h4>
+                            <div class="flex items-center">
+                                <input type="file" id="digital-signature" class="hidden">
+                                <button type="button" class="bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Subir Firma Digital
+                                </button>
+                                <span class="ml-4 text-sm text-gray-500">No se ha cargado ninguna firma</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Tab (Hidden by default) -->
+                    <div id="usuarios-tab" class="tab-content hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Usuarios del Sistema</h3>
+                            <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <i class="fas fa-plus mr-2"></i> Nuevo Usuario
+                            </button>
+                        </div>
+                        <div class="flex flex-col">
+                            <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                                <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                                    <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                                    <th scope="col" class="relative px-6 py-3">
+                                                        <span class="sr-only">Acciones</span>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <div class="flex items-center">
+                                                            <div class="flex-shrink-0 h-10 w-10">
+                                                                <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Admin+User" alt="">
+                                                            </div>
+                                                            <div class="ml-4">
+                                                                <div class="text-sm font-medium text-gray-900">Admin User</div>
+                                                                <div class="text-sm text-gray-500">Administrador</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">admin@miempresa.com</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                            Administrador
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                            Activo
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">Editar</button>
+                                                        <button class="text-red-600 hover:text-red-900">Eliminar</button>
+                                                    </td>
+                                                </tr>
+                                                <!-- More user rows would go here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <h4 class="text-md font-medium text-gray-900 mb-2">Roles y Permisos</h4>
+                            <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                                <ul class="divide-y divide-gray-200">
+                                    <li>
+                                        <div class="px-4 py-4 flex items-center sm:px-6">
+                                            <div class="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
+                                                <div class="truncate">
+                                                    <div class="flex text-sm">
+                                                        <p class="font-medium text-indigo-600 truncate">Administrador</p>
+                                                        <p class="ml-1 flex-shrink-0 font-normal text-gray-500">- Acceso completo al sistema</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="ml-5 flex-shrink-0">
+                                                <button class="text-indigo-600 hover:text-indigo-900">Editar Permisos</button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <!-- More role rows would go here -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Backup Tab (Hidden by default) -->
+                    <div id="backup-tab" class="tab-content hidden">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Copias de Seguridad</h3>
+                        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                            <div class="px-4 py-5 sm:px-6">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">Estado de la copia de seguridad</h3>
+                                <p class="mt-1 max-w-2xl text-sm text-gray-500">Última copia de seguridad realizada el 15 de Mayo, 2023 a las 23:59</p>
+                            </div>
+                            <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+                                <dl class="sm:divide-y sm:divide-gray-200">
+                                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                        <dt class="text-sm font-medium text-gray-500">Próxima copia programada</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">16 de Mayo, 2023 a las 23:59</dd>
+                                    </div>
+                                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                        <dt class="text-sm font-medium text-gray-500">Frecuencia</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">Diaria</dd>
+                                    </div>
+                                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                        <dt class="text-sm font-medium text-gray-500">Almacenamiento utilizado</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: 25%"></div>
+                                            </div>
+                                            <p class="mt-1 text-xs text-gray-500">2.5 GB de 10 GB (25% utilizado)</p>
+                                        </dd>
+                                    </div>
+                                </dl>
+                            </div>
+                        </div>
+                        <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                            <div class="bg-white overflow-hidden shadow rounded-lg">
+                                <div class="px-4 py-5 sm:p-6">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900">Crear Copia de Seguridad</h3>
+                                    <div class="mt-2 max-w-xl text-sm text-gray-500">
+                                        <p>Crea una copia de seguridad manual de todos los datos del sistema.</p>
+                                    </div>
+                                    <div class="mt-5">
+                                        <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                            <i class="fas fa-save mr-2"></i> Crear Copia Ahora
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white overflow-hidden shadow rounded-lg">
+                                <div class="px-4 py-5 sm:p-6">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900">Restaurar desde Copia</h3>
+                                    <div class="mt-2 max-w-xl text-sm text-gray-500">
+                                        <p>Restaura el sistema desde una copia de seguridad anterior.</p>
+                                    </div>
+                                    <div class="mt-5">
+                                        <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                            <i class="fas fa-undo mr-2"></i> Restaurar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white overflow-hidden shadow rounded-lg">
+                                <div class="px-4 py-5 sm:p-6">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900">Configuración Automática</h3>
+                                    <div class="mt-2 max-w-xl text-sm text-gray-500">
+                                        <p>Configura la frecuencia y el destino de las copias de seguridad automáticas.</p>
+                                    </div>
+                                    <div class="mt-5">
+                                        <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                            <i class="fas fa-cog mr-2"></i> Configurar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <h4 class="text-md font-medium text-gray-900 mb-2">Copias de Seguridad Recientes</h4>
+                            <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                                <ul class="divide-y divide-gray-200">
+                                    <li>
+                                        <div class="px-4 py-4 flex items-center sm:px-6">
+                                            <div class="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
+                                                <div class="truncate">
+                                                    <div class="flex text-sm">
+                                                        <p class="font-medium text-indigo-600 truncate">backup_20230515_2359.zip</p>
+                                                        <p class="ml-1 flex-shrink-0 font-normal text-gray-500">- 15 de Mayo, 2023 23:59</p>
+                                                    </div>
+                                                    <div class="mt-2 flex">
+                                                        <div class="flex items-center text-sm text-gray-500">
+                                                            <i class="fas fa-database mr-1.5 flex-shrink-0 text-gray-400"></i>
+                                                            <p>1.2 GB</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-4 flex-shrink-0 sm:mt-0 sm:ml-5">
+                                                    <div class="flex -space-x-1 overflow-hidden">
+                                                        <img class="inline-block h-6 w-6 rounded-full ring-2 ring-white" src="https://ui-avatars.com/api/?name=Admin+User" alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="ml-5 flex-shrink-0">
+                                                <div class="flex space-x-2">
+                                                    <button class="text-indigo-600 hover:text-indigo-900">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                    <button class="text-gray-400 hover:text-gray-500">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <!-- More backup rows would go here -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show first tab by default
+            document.querySelector('.tab-content').classList.remove('hidden');
+            
+            // Tab switching
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('border-indigo-500', 'text-indigo-600');
+                        btn.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                    this.classList.add('border-indigo-500', 'text-indigo-600');
+                    
+                    // Hide all tab contents
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // Show selected tab content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.remove('hidden');
+                });
+            });
+
+            // Form submission
+            const saveButton = document.querySelector('button[type="submit"]');
+            if (saveButton) {
+                saveButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    alert('Configuración guardada exitosamente');
+                    // In a real app, this would submit the form data to the server
+                });
+            }
+        });
+    </script>
+</body>
+</html>
